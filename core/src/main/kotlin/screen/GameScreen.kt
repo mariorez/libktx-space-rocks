@@ -2,45 +2,83 @@ package screen
 
 import Action
 import BaseScreen
-import GameBoot
+import GameBoot.Companion.WINDOW_HEIGHT
+import GameBoot.Companion.WINDOW_WIDTH
+import WorldSize
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import component.InputComponent
+import component.PlayerComponent
 import component.RenderComponent
 import component.TransformComponent
+import component.WrapAroundWorldComponent
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
+import system.InputSystem
+import system.PlayerMovementSystem
 import system.RenderingSystem
+import system.WrapAroundWorldSystem
 
 class GameScreen(
     private val assets: AssetStorage
 ) : BaseScreen() {
-
     private val engine = PooledEngine()
     private val batch = SpriteBatch()
     private val camera = OrthographicCamera(
-        GameBoot.WINDOW_WIDTH.toFloat(),
-        GameBoot.WINDOW_HEIGHT.toFloat()
+        WINDOW_WIDTH.toFloat(),
+        WINDOW_HEIGHT.toFloat()
     ).apply { setToOrtho(false) }
+    private val worldSize = WorldSize(WINDOW_WIDTH, WINDOW_HEIGHT)
+    private lateinit var spaceship: Entity
 
     init {
-        engine.apply {
-            addSystem(RenderingSystem(batch, camera))
+        registerAction(Input.Keys.W, Action.Name.UP)
+        registerAction(Input.Keys.A, Action.Name.LEFT)
+        registerAction(Input.Keys.D, Action.Name.RIGHT)
 
-            entity {
-                with<TransformComponent> { position.set(300f, 200f) }
-                with<RenderComponent> {
-                    sprite = Sprite(assets.get<Texture>("spaceship.png"))
-                }
+        spawnPlayer()
+
+        engine.apply {
+            addSystem(InputSystem(spaceship))
+            addSystem(PlayerMovementSystem(spaceship))
+            addSystem(WrapAroundWorldSystem(worldSize))
+            addSystem(RenderingSystem(batch, camera))
+        }
+    }
+
+    private fun spawnPlayer() {
+        spaceship = engine.entity {
+            with<PlayerComponent>()
+            with<WrapAroundWorldComponent>()
+            with<InputComponent>()
+            with<TransformComponent> {
+                position.set(300f, 200f)
+                acceleration = 200f
+                deceleration = 10f
+                maxSpeed = 100f
+                degreesPerSecond = 120f
+            }
+            with<RenderComponent> {
+                sprite = Sprite(assets.get<Texture>("spaceship.png"))
             }
         }
     }
 
     override fun doAction(action: Action) {
+        val input = InputComponent.mapper.get(spaceship)
+        val isStarting = action.type == Action.Type.START
+        when (action.name) {
+            Action.Name.UP -> input.up = isStarting
+            Action.Name.LEFT -> input.left = isStarting
+            Action.Name.RIGHT -> input.right = isStarting
+        }
     }
 
     override fun render(delta: Float) {

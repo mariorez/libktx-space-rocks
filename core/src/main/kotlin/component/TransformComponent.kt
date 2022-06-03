@@ -10,6 +10,7 @@ class TransformComponent : Component, Poolable, Comparable<TransformComponent> {
     val position = Vector2()
     var zIndex = 0f
     var rotation = 0f
+    var degreesPerSecond = 0f
     val velocity = Vector2()
     val accelerator = Vector2()
     var acceleration = 0f
