@@ -25,6 +25,7 @@ import system.InputSystem
 import system.PlayerMovementSystem
 import system.RenderingSystem
 import system.WrapAroundWorldSystem
+import kotlin.random.Random.Default.nextInt
 
 class GameScreen(
     private val assets: AssetStorage
@@ -37,6 +38,7 @@ class GameScreen(
     ).apply { setToOrtho(false) }
     private val worldSize = WorldSize(WINDOW_WIDTH, WINDOW_HEIGHT)
     private lateinit var spaceship: Entity
+    private var rocksQuantity = 10
 
     init {
         registerAction(Input.Keys.W, Action.Name.UP)
@@ -44,8 +46,14 @@ class GameScreen(
         registerAction(Input.Keys.D, Action.Name.RIGHT)
 
         spawnPlayer()
+        spawnRocks()
 
         engine.apply {
+            entity {
+                with<TransformComponent> { zIndex = (rocksQuantity + 1).toFloat() }
+                with<RenderComponent> { sprite = Sprite(assets.get<Texture>("space.png")) }
+            }
+
             addSystem(InputSystem(spaceship))
             addSystem(PlayerMovementSystem(spaceship))
             addSystem(WrapAroundWorldSystem(worldSize))
@@ -59,7 +67,7 @@ class GameScreen(
             with<WrapAroundWorldComponent>()
             with<InputComponent>()
             with<TransformComponent> {
-                position.set(300f, 200f)
+                position.set((WINDOW_WIDTH / 2).toFloat(), (WINDOW_HEIGHT / 2).toFloat())
                 acceleration = 200f
                 deceleration = 10f
                 maxSpeed = 100f
@@ -67,6 +75,20 @@ class GameScreen(
             }
             with<RenderComponent> {
                 sprite = Sprite(assets.get<Texture>("spaceship.png"))
+            }
+        }
+    }
+
+    private fun spawnRocks() {
+        val rockImage = assets.get<Texture>("rock.png")
+        (1..rocksQuantity).forEach {
+            engine.entity {
+                with<TransformComponent> {
+                    position.x = nextInt(0, WINDOW_WIDTH - rockImage.width).toFloat()
+                    position.y = nextInt(0, WINDOW_HEIGHT - rockImage.height).toFloat()
+                    zIndex = it.toFloat()
+                }
+                with<RenderComponent> { sprite = Sprite(rockImage) }
             }
         }
     }

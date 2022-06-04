@@ -40,7 +40,9 @@ class GameBoot : KtxGame<KtxScreen>() {
         KtxAsync.initiate()
 
         val assets = AssetStorage().apply {
+            loadSync<Texture>("space.png").setFilter(Linear, Linear)
             loadSync<Texture>("spaceship.png").setFilter(Linear, Linear)
+            loadSync<Texture>("rock.png").setFilter(Linear, Linear)
         }
 
         addScreen(GameScreen(assets))
