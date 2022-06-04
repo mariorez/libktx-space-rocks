@@ -1,27 +1,26 @@
 package system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.math.Vector2
+import com.github.quillraven.fleks.ComponentMapper
+import com.github.quillraven.fleks.Entity
+import com.github.quillraven.fleks.IntervalSystem
 import component.InputComponent
 import component.TransformComponent
+import kotlin.properties.Delegates
 
 class InputSystem(
-    private val player: Entity
-) : EntitySystem() {
+    private val input: ComponentMapper<InputComponent>,
+    private val transform: ComponentMapper<TransformComponent>
+) : IntervalSystem() {
 
-    private val playerInput = InputComponent.mapper.get(player)
+    var player: Entity by Delegates.notNull()
 
-    override fun update(deltaTime: Float) {
-        TransformComponent.mapper.get(player).apply {
+    override fun onTick() {
+        transform[player].apply {
             val degrees = degreesPerSecond * deltaTime
-            if (playerInput.left) rotation = rotateBy(rotation, degrees)
-            if (playerInput.right) rotation = rotateBy(rotation, -degrees)
-            if (playerInput.up) accelerator.add(Vector2(acceleration, 0f).setAngleDeg(rotation))
+            if (input[player].left) rotateBy(degrees)
+            if (input[player].right) rotateBy(-degrees)
+            if (input[player].up) accelerator.add(Vector2(acceleration, 0f).setAngleDeg(rotation))
         }
-    }
-
-    private fun rotateBy(rotation: Float, degrees: Float): Float {
-        return if (degrees != 0f) (rotation + degrees) % 360 else rotation
     }
 }

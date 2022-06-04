@@ -1,37 +1,27 @@
 package component
 
-import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Pool.Poolable
-import ktx.ashley.mapperFor
 
-class TransformComponent : Component, Poolable, Comparable<TransformComponent> {
-
-    val position = Vector2()
-    var zIndex = 0f
-    var rotation = 0f
-    var degreesPerSecond = 0f
-    val velocity = Vector2()
-    val accelerator = Vector2()
-    var acceleration = 0f
-    var deceleration = 0f
-    var maxSpeed = 0f
-
-    override fun reset() {
-        position.set(0f, 0f)
-        zIndex = 0f
-        rotation = 0f
-        velocity.set(0f, 0f)
-        acceleration = 0f
-        deceleration = 0f
-        maxSpeed = 0f
+data class TransformComponent(
+    var position: Vector2 = Vector2(),
+    var velocity: Vector2 = Vector2(),
+    var accelerator: Vector2 = Vector2(),
+    var acceleration: Float = 0f,
+    var deceleration: Float = 0f,
+    var maxSpeed: Float = 0f,
+    var rotation: Float = 0f,
+    var degreesPerSecond: Float = 0f
+) {
+    fun setSpeed(speed: Float) {
+        if (velocity.len() == 0f) velocity.set(speed, 0f)
+        else velocity.setLength(speed)
     }
 
-    override fun compareTo(other: TransformComponent): Int {
-        return other.zIndex.compareTo(zIndex)
+    fun setMotionAngle(angle: Float) {
+        velocity.setAngleDeg(angle)
     }
 
-    companion object {
-        val mapper = mapperFor<TransformComponent>()
+    fun rotateBy(degrees: Float) {
+        if (degrees != 0f) rotation = (rotation + degrees) % 360
     }
 }

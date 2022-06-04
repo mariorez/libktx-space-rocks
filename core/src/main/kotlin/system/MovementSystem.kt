@@ -1,16 +1,21 @@
 package system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.math.MathUtils
+import com.github.quillraven.fleks.AnyOf
+import com.github.quillraven.fleks.ComponentMapper
+import com.github.quillraven.fleks.Entity
+import com.github.quillraven.fleks.IteratingSystem
+import component.PlayerComponent
+import component.RockComponent
 import component.TransformComponent
 
-class PlayerMovementSystem(
-    private val player: Entity
-) : EntitySystem() {
+@AnyOf([PlayerComponent::class, RockComponent::class])
+class MovementSystem(
+    private val transform: ComponentMapper<TransformComponent>
+) : IteratingSystem() {
 
-    override fun update(deltaTime: Float) {
-        TransformComponent.mapper.get(player).apply {
+    override fun onTickEntity(entity: Entity) {
+        transform[entity].apply {
             // apply acceleration
             velocity.add(
                 accelerator.x * deltaTime,
@@ -28,11 +33,7 @@ class PlayerMovementSystem(
             speed = MathUtils.clamp(speed, 0f, maxSpeed)
 
             // update velocity
-            if (velocity.len() == 0f) {
-                velocity.set(speed, 0f)
-            } else {
-                velocity.setLength(speed)
-            }
+            setSpeed(speed)
 
             // move by
             if (velocity.x != 0f || velocity.y != 0f) {

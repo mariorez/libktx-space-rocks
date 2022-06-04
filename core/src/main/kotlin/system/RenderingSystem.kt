@@ -1,43 +1,39 @@
 package system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.github.quillraven.fleks.AllOf
+import com.github.quillraven.fleks.ComponentMapper
+import com.github.quillraven.fleks.Entity
+import com.github.quillraven.fleks.IteratingSystem
 import component.RenderComponent
 import component.TransformComponent
-import ktx.ashley.allOf
-import ktx.ashley.get
 
+@AllOf([TransformComponent::class, RenderComponent::class])
 class RenderingSystem(
-    private val batch: Batch,
-    private val camera: OrthographicCamera
-) : SortedIteratingSystem(
-    allOf(RenderComponent::class, TransformComponent::class).get(),
-    compareBy { it[TransformComponent.mapper] }
-) {
+    private val batch: SpriteBatch,
+    private val camera: OrthographicCamera,
+    private val transform: ComponentMapper<TransformComponent>,
+    private val render: ComponentMapper<RenderComponent>
+) : IteratingSystem() {
 
-    override fun update(deltaTime: Float) {
+    override fun onTick() {
         batch.projectionMatrix = camera.combined
         batch.begin()
-        super.update(deltaTime)
+        super.onTick()
         batch.end()
     }
 
-    override fun processEntity(entity: Entity, deltaTime: Float) {
-        val sprite = RenderComponent.mapper.get(entity).sprite
-        val transform = TransformComponent.mapper.get(entity)
-
-        sprite.apply {
-            setOriginCenter()
-            rotation = transform.rotation
-            setBounds(
-                transform.position.x,
-                transform.position.y,
-                width,
-                height
-            )
-            draw(batch)
+    override fun onTickEntity(entity: Entity) {
+        render[entity].apply {
+            transform[entity].also { transform ->
+                sprite.apply {
+                    setOriginCenter()
+                    rotation = transform.rotation
+                    setBounds(transform.position.x, transform.position.y, width, height)
+                    draw(batch)
+                }
+            }
         }
     }
 }
