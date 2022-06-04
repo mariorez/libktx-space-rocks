@@ -17,6 +17,10 @@ data class TransformComponent(
         else velocity.setLength(speed)
     }
 
+    fun getMotionAngle(): Float {
+        return velocity.angleDeg()
+    }
+
     fun setMotionAngle(angle: Float) {
         velocity.setAngleDeg(angle)
     }

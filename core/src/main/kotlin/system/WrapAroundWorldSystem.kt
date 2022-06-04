@@ -18,12 +18,31 @@ class WrapAroundWorldSystem(
 ) : IteratingSystem() {
 
     override fun onTickEntity(entity: Entity) {
-        transform[entity].position.apply {
+        transform[entity].apply {
             render[entity].apply {
-                if (x + sprite.width < 0) x = worldSize.width.toFloat()
-                if (x > worldSize.width) x = -sprite.width
-                if (y + sprite.height < 0) y = worldSize.height.toFloat()
-                if (y > worldSize.height) y = -sprite.height
+                if (position.x + sprite.width < 0) {
+                    position.x = worldSize.width.toFloat()
+                    position.y = if (getMotionAngle() in 170.0..190.0) position.y
+                    else worldSize.height - position.y
+                }
+
+                if (position.x > worldSize.width) {
+                    position.x = -sprite.width
+                    position.y = if (getMotionAngle() <= 10 || getMotionAngle() >= 350) position.y
+                    else worldSize.height - position.y
+                }
+
+                if (position.y + sprite.height < 0) {
+                    position.y = worldSize.height.toFloat()
+                    position.x = if (getMotionAngle() in 260.0..280.0) position.x
+                    else worldSize.width - position.x
+                }
+
+                if (position.y > worldSize.height) {
+                    position.y = -sprite.height
+                    position.x = if (getMotionAngle() in 80.0..100.0) position.x
+                    else worldSize.width - position.x
+                }
             }
         }
     }
