@@ -2,9 +2,7 @@ package screen
 
 import Action
 import BaseScreen
-import GameBoot.Companion.WINDOW_HEIGHT
-import GameBoot.Companion.WINDOW_WIDTH
-import WorldSize
+import GameBoot.Companion.gameSizes
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
@@ -33,15 +31,14 @@ class GameScreen(
 ) : BaseScreen() {
     private val batch = SpriteBatch()
     private val camera = OrthographicCamera(
-        WINDOW_WIDTH.toFloat(), WINDOW_HEIGHT.toFloat()
+        gameSizes.windowWidthF(), gameSizes.windowHeightF()
     ).apply { setToOrtho(false) }
-    private val worldSize = WorldSize(WINDOW_WIDTH, WINDOW_HEIGHT)
     private var spaceship: Entity by Delegates.notNull()
     private var rocksQuantity = 10
     private val world = World {
         inject(batch)
         inject(camera)
-        inject(worldSize)
+        inject(gameSizes)
         inject(Sprite(assets.get<Texture>("laser.png")))
         system<InputSystem>()
         system<MovementSystem>()
@@ -80,7 +77,7 @@ class GameScreen(
             add<WrapAroundWorldComponent>()
             add<InputComponent>()
             add<TransformComponent> {
-                position.set((WINDOW_WIDTH / 2).toFloat(), (WINDOW_HEIGHT / 2).toFloat())
+                position.set(gameSizes.windowWidthF() / 2, gameSizes.windowHeightF() / 2)
                 zIndex = 3f
                 acceleration = 200f
                 deceleration = 10f
@@ -101,8 +98,8 @@ class GameScreen(
                 add<WrapAroundWorldComponent>()
                 add<RenderComponent> { sprite = Sprite(rockImage) }
                 add<TransformComponent> {
-                    position.x = nextInt(0, WINDOW_WIDTH - rockImage.width).toFloat()
-                    position.y = nextInt(0, WINDOW_HEIGHT - rockImage.height).toFloat()
+                    position.x = nextInt(0, gameSizes.windowWidth - rockImage.width).toFloat()
+                    position.y = nextInt(0, gameSizes.worldHeight - rockImage.height).toFloat()
                     zIndex = 2f
                     acceleration = 50f
                     maxSpeed = 50f

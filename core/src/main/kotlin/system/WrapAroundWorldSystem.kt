@@ -1,6 +1,6 @@
 package system
 
-import WorldSize
+import GameSizes
 import com.github.quillraven.fleks.AnyOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
@@ -12,7 +12,7 @@ import component.TransformComponent
 
 @AnyOf([PlayerComponent::class, RockComponent::class])
 class WrapAroundWorldSystem(
-    private val worldSize: WorldSize,
+    private val gameSizes: GameSizes,
     private val transform: ComponentMapper<TransformComponent>,
     private val render: ComponentMapper<RenderComponent>
 ) : IteratingSystem() {
@@ -21,27 +21,27 @@ class WrapAroundWorldSystem(
         transform[entity].apply {
             render[entity].apply {
                 if (position.x + sprite.width < 0) {
-                    position.x = worldSize.width.toFloat()
+                    position.x = gameSizes.worldWidthF()
                     position.y = if (getMotionAngle() in 170.0..190.0) position.y
-                    else worldSize.height - position.y
+                    else gameSizes.worldHeightF() - position.y
                 }
 
-                if (position.x > worldSize.width) {
+                if (position.x > gameSizes.worldWidthF()) {
                     position.x = -sprite.width
                     position.y = if (getMotionAngle() <= 10 || getMotionAngle() >= 350) position.y
-                    else worldSize.height - position.y
+                    else gameSizes.windowHeightF() - position.y
                 }
 
                 if (position.y + sprite.height < 0) {
-                    position.y = worldSize.height.toFloat()
+                    position.y = gameSizes.windowHeightF()
                     position.x = if (getMotionAngle() in 260.0..280.0) position.x
-                    else worldSize.width - position.x
+                    else gameSizes.worldWidthF() - position.x
                 }
 
-                if (position.y > worldSize.height) {
+                if (position.y > gameSizes.windowHeightF()) {
                     position.y = -sprite.height
                     position.x = if (getMotionAngle() in 80.0..100.0) position.x
-                    else worldSize.width - position.x
+                    else gameSizes.worldWidthF() - position.x
                 }
             }
         }
