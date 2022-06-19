@@ -23,6 +23,7 @@ import ktx.assets.disposeSafely
 import system.InputSystem
 import system.MovementSystem
 import system.RenderingSystem
+import system.ShootingSystem
 import system.WrapAroundWorldSystem
 import kotlin.properties.Delegates
 import kotlin.random.Random.Default.nextInt
@@ -41,8 +42,10 @@ class GameScreen(
         inject(batch)
         inject(camera)
         inject(worldSize)
+        inject(Sprite(assets.get<Texture>("laser.png")))
         system<InputSystem>()
         system<MovementSystem>()
+        system<ShootingSystem>()
         system<WrapAroundWorldSystem>()
         system<RenderingSystem>()
     }
@@ -51,6 +54,7 @@ class GameScreen(
         registerAction(Input.Keys.W, Action.Name.UP)
         registerAction(Input.Keys.A, Action.Name.LEFT)
         registerAction(Input.Keys.D, Action.Name.RIGHT)
+        registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
 
         spawnPlayer()
         spawnRocks()
@@ -64,6 +68,7 @@ class GameScreen(
             systems.forEach {
                 when (it::class) {
                     InputSystem::class -> (it as InputSystem).player = spaceship
+                    ShootingSystem::class -> (it as ShootingSystem).player = spaceship
                 }
             }
         }
@@ -76,6 +81,7 @@ class GameScreen(
             add<InputComponent>()
             add<TransformComponent> {
                 position.set((WINDOW_WIDTH / 2).toFloat(), (WINDOW_HEIGHT / 2).toFloat())
+                zIndex = 3f
                 acceleration = 200f
                 deceleration = 10f
                 maxSpeed = 100f
@@ -97,6 +103,7 @@ class GameScreen(
                 add<TransformComponent> {
                     position.x = nextInt(0, WINDOW_WIDTH - rockImage.width).toFloat()
                     position.y = nextInt(0, WINDOW_HEIGHT - rockImage.height).toFloat()
+                    zIndex = 2f
                     acceleration = 50f
                     maxSpeed = 50f
                     setSpeed(50f)
@@ -113,6 +120,7 @@ class GameScreen(
             Action.Name.UP -> input.up = isStarting
             Action.Name.LEFT -> input.left = isStarting
             Action.Name.RIGHT -> input.right = isStarting
+            Action.Name.SHOOT -> if (action.type == Action.Type.START) input.shoot = true
         }
     }
 

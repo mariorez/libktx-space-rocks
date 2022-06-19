@@ -7,9 +7,10 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import component.PlayerComponent
 import component.RockComponent
+import component.ShootComponent
 import component.TransformComponent
 
-@AnyOf([PlayerComponent::class, RockComponent::class])
+@AnyOf([PlayerComponent::class, RockComponent::class, ShootComponent::class])
 class MovementSystem(
     private val transform: ComponentMapper<TransformComponent>
 ) : IteratingSystem() {

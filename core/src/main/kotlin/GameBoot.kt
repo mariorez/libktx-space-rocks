@@ -43,6 +43,7 @@ class GameBoot : KtxGame<KtxScreen>() {
             loadSync<Texture>("space.png").setFilter(Linear, Linear)
             loadSync<Texture>("spaceship.png").setFilter(Linear, Linear)
             loadSync<Texture>("rock.png").setFilter(Linear, Linear)
+            loadSync<Texture>("laser.png").setFilter(Linear, Linear)
         }
 
         addScreen(GameScreen(assets))

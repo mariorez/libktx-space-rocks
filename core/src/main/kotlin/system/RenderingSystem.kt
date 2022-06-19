@@ -6,6 +6,7 @@ import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
+import com.github.quillraven.fleks.collection.compareEntity
 import component.RenderComponent
 import component.TransformComponent
 
@@ -15,7 +16,9 @@ class RenderingSystem(
     private val camera: OrthographicCamera,
     private val transform: ComponentMapper<TransformComponent>,
     private val render: ComponentMapper<RenderComponent>
-) : IteratingSystem() {
+) : IteratingSystem(
+    compareEntity { entA, entB -> transform[entA].zIndex.compareTo(transform[entB].zIndex) }
+) {
 
     override fun onTick() {
         batch.projectionMatrix = camera.combined
