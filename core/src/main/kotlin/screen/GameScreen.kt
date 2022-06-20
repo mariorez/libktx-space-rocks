@@ -54,7 +54,7 @@ class GameScreen(
 
             // late injections
             system<InputSystem>().player = spaceship
-            system<ShootingSystem>().player = spaceship
+            system<ShootingSystem>().addPlayer(spaceship)
         }
     }
 
