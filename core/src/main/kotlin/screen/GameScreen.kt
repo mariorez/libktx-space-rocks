@@ -60,11 +60,12 @@ class GameScreen(
 
     override fun render(delta: Float) {
         world.update(delta)
+        hudStage.draw()
     }
 
     override fun dispose() {
+        super.dispose()
         world.dispose()
-        batch.disposeSafely()
         assets.disposeSafely()
     }
 
@@ -82,7 +83,7 @@ class GameScreen(
             add<InputComponent>()
             add<TransformComponent> {
                 position.set(gameSizes.windowWidthF() / 2, gameSizes.windowHeightF() / 2)
-                zIndex = 3f
+                zIndex += rocksQuantity + 1
                 acceleration = 200f
                 deceleration = 10f
                 maxSpeed = 100f
@@ -96,7 +97,7 @@ class GameScreen(
 
     private fun spawnRocks() {
         val rockImage = assets.get<Texture>("rock.png")
-        repeat(rocksQuantity) {
+        repeat(rocksQuantity) { index ->
             world.entity {
                 add<RockComponent>()
                 add<WrapAroundWorldComponent>()
@@ -104,7 +105,7 @@ class GameScreen(
                 add<TransformComponent> {
                     position.x = nextInt(0, gameSizes.windowWidth - rockImage.width).toFloat()
                     position.y = nextInt(0, gameSizes.worldHeight - rockImage.height).toFloat()
-                    zIndex = 2f
+                    zIndex += index
                     acceleration = 50f
                     maxSpeed = 50f
                     setSpeed(50f)

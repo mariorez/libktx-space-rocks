@@ -9,6 +9,7 @@ buildscript {
         maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
     }
     dependencies {
+        classpath "com.android.tools.build:gradle:$androidPluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
         // This follows advice from https://blog.gradle.org/log4j-vulnerability
@@ -29,7 +30,7 @@ allprojects {
     apply plugin: 'idea'
 }
 
-configure(subprojects) {
+configure(subprojects - project(':android')) {
     apply plugin: 'java-library'
     apply plugin: 'kotlin'
     sourceCompatibility = 11
@@ -53,7 +54,7 @@ configure(subprojects) {
 
 subprojects {
     version = '0.0.1'
-    ext.appName = 'SpaceRocks'
+    ext.appName = 'spacerocks'
     repositories {
         mavenCentral()
         maven { url 'https://s01.oss.sonatype.org' }
@@ -65,4 +66,4 @@ subprojects {
     }
 }
 
-eclipse.project.name = 'SpaceRocks' + '-parent'
+eclipse.project.name = 'spacerocks' + '-parent'
