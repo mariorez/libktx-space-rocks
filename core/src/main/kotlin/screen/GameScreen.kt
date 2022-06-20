@@ -4,10 +4,8 @@ import Action
 import BaseScreen
 import GameBoot.Companion.gameSizes
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
 import component.InputComponent
@@ -29,10 +27,6 @@ import kotlin.random.Random.Default.nextInt
 class GameScreen(
     private val assets: AssetStorage
 ) : BaseScreen() {
-    private val batch = SpriteBatch()
-    private val camera = OrthographicCamera(
-        gameSizes.windowWidthF(), gameSizes.windowHeightF()
-    ).apply { setToOrtho(false) }
     private var spaceship: Entity by Delegates.notNull()
     private var rocksQuantity = 10
     private val world = World {
@@ -48,11 +42,7 @@ class GameScreen(
     }
 
     init {
-        registerAction(Input.Keys.W, Action.Name.UP)
-        registerAction(Input.Keys.A, Action.Name.LEFT)
-        registerAction(Input.Keys.D, Action.Name.RIGHT)
-        registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
-
+        buildControls()
         spawnPlayer()
         spawnRocks()
 
@@ -62,13 +52,27 @@ class GameScreen(
                 add<RenderComponent> { sprite = Sprite(assets.get<Texture>("space.png")) }
             }
 
-            systems.forEach {
-                when (it::class) {
-                    InputSystem::class -> (it as InputSystem).player = spaceship
-                    ShootingSystem::class -> (it as ShootingSystem).player = spaceship
-                }
-            }
+            // late injections
+            system<InputSystem>().player = spaceship
+            system<ShootingSystem>().player = spaceship
         }
+    }
+
+    override fun render(delta: Float) {
+        world.update(delta)
+    }
+
+    override fun dispose() {
+        world.dispose()
+        batch.disposeSafely()
+        assets.disposeSafely()
+    }
+
+    private fun buildControls() {
+        registerAction(Input.Keys.UP, Action.Name.UP)
+        registerAction(Input.Keys.LEFT, Action.Name.LEFT)
+        registerAction(Input.Keys.RIGHT, Action.Name.RIGHT)
+        registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
     }
 
     private fun spawnPlayer() {
@@ -119,16 +123,5 @@ class GameScreen(
             Action.Name.RIGHT -> input.right = isStarting
             Action.Name.SHOOT -> if (action.type == Action.Type.START) input.shoot = true
         }
-    }
-
-    override fun render(delta: Float) {
-        world.update(delta)
-    }
-
-    override fun dispose() {
-        world.dispose()
-        batch.disposeSafely()
-        assets.disposeSafely()
-        uiStage.disposeSafely()
     }
 }

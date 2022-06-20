@@ -1,15 +1,14 @@
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Table
+import GameBoot.Companion.gameSizes
+import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import ktx.app.KtxScreen
 
 abstract class BaseScreen : KtxScreen {
 
     private val actionMap = mutableMapOf<Int, Action.Name>()
-    protected val uiStage = Stage()
-    protected val table = Table().apply { setFillParent(true) }
-
-    init {
-        uiStage.addActor(table)
+    protected val batch = SpriteBatch()
+    protected val camera = OrthographicCamera().apply {
+        setToOrtho(false, gameSizes.windowWidthF(), gameSizes.windowHeightF())
     }
 
     fun registerAction(inputKey: Int, actionName: Action.Name) {

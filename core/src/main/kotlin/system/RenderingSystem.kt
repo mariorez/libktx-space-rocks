@@ -9,6 +9,7 @@ import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.collection.compareEntity
 import component.RenderComponent
 import component.TransformComponent
+import ktx.graphics.use
 
 @AllOf([TransformComponent::class, RenderComponent::class])
 class RenderingSystem(
@@ -21,10 +22,9 @@ class RenderingSystem(
 ) {
 
     override fun onTick() {
-        batch.projectionMatrix = camera.combined
-        batch.begin()
-        super.onTick()
-        batch.end()
+        batch.use(camera) {
+            super.onTick()
+        }
     }
 
     override fun onTickEntity(entity: Entity) {
