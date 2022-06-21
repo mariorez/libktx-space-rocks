@@ -27,8 +27,8 @@ class CollisionSystem(
         val rockBox = render[entity].getPolygon()
         shoots.forEach { shootEntity ->
             if (noCollision) {
-                render[shootEntity].also {
-                    if (overlaps(it.getPolygon(), rockBox)) {
+                render[shootEntity].getPolygon().also { shootBox ->
+                    if (overlaps(shootBox, rockBox)) {
                         world.remove(shootEntity)
                         world.remove(entity)
                         noCollision = false
@@ -50,4 +50,3 @@ class CollisionSystem(
         return false
     }
 }
-
