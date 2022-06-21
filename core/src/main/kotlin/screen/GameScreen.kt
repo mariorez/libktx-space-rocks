@@ -16,6 +16,7 @@ import component.InputComponent
 import component.PlayerComponent
 import component.RenderComponent
 import component.RockComponent
+import component.ShootComponent
 import component.TransformComponent
 import component.WrapAroundWorldComponent
 import generateButton
@@ -23,6 +24,8 @@ import ktx.actors.onTouchEvent
 import ktx.app.Platform
 import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
+import system.CollisionSystem
+import system.FadeEffectSystem
 import system.InputSystem
 import system.MovementSystem
 import system.RenderingSystem
@@ -41,11 +44,13 @@ class GameScreen(
         inject(batch)
         inject(camera)
         inject(gameSizes)
-        inject(Sprite(assets.get<Texture>("laser.png")))
+        inject(assets.get<Texture>("laser.png"))
         system<InputSystem>()
         system<MovementSystem>()
         system<ShootingSystem>()
         system<WrapAroundWorldSystem>()
+        system<CollisionSystem>()
+        system<FadeEffectSystem>()
         system<RenderingSystem>()
     }
 
@@ -56,12 +61,16 @@ class GameScreen(
 
         world.apply {
             entity {
-                add<TransformComponent>()
+                add<TransformComponent>() { zIndex -= 1 }
                 add<RenderComponent> { sprite = Sprite(assets.get<Texture>("space.png")) }
             }
 
             // late injections
             system<ShootingSystem>().addPlayer(spaceship)
+            system<CollisionSystem>().also {
+                it.player = spaceship
+                it.shoots = family(allOf = arrayOf(ShootComponent::class))
+            }
             system<InputSystem>().also {
                 it.player = spaceship
                 if (Platform.isMobile) it.touchpad = touchpad
@@ -78,6 +87,45 @@ class GameScreen(
         super.dispose()
         world.dispose()
         assets.disposeSafely()
+    }
+
+    private fun spawnPlayer() {
+        spaceship = world.entity {
+            add<PlayerComponent>()
+            add<WrapAroundWorldComponent>()
+            add<InputComponent>()
+            add<TransformComponent> {
+                position.set(gameSizes.windowWidthF() / 2, gameSizes.windowHeightF() / 2)
+                zIndex += rocksQuantity + 1
+                acceleration = 150f
+                deceleration = 10f
+                maxSpeed = 100f
+                degreesPerSecond = 120f
+            }
+            add<RenderComponent> {
+                sprite = Sprite(assets.get<Texture>("spaceship.png"))
+            }
+        }
+    }
+
+    private fun spawnRocks() {
+        val rockImage = assets.get<Texture>("rock.png")
+        repeat(rocksQuantity) { index ->
+            world.entity {
+                add<RockComponent>()
+                add<WrapAroundWorldComponent>()
+                add<RenderComponent> { sprite = Sprite(rockImage) }
+                add<TransformComponent> {
+                    position.x = nextInt(0, gameSizes.windowWidth - rockImage.width).toFloat()
+                    position.y = nextInt(0, gameSizes.worldHeight - rockImage.height).toFloat()
+                    zIndex += index
+                    acceleration = 50f
+                    maxSpeed = 50f
+                    setSpeed(50f)
+                    setMotionAngle(nextInt(360).toFloat())
+                }
+            }
+        }
     }
 
     private fun buildControls() {
@@ -106,45 +154,6 @@ class GameScreen(
             registerAction(Input.Keys.LEFT, Action.Name.LEFT)
             registerAction(Input.Keys.RIGHT, Action.Name.RIGHT)
             registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
-        }
-    }
-
-    private fun spawnPlayer() {
-        spaceship = world.entity {
-            add<PlayerComponent>()
-            add<WrapAroundWorldComponent>()
-            add<InputComponent>()
-            add<TransformComponent> {
-                position.set(gameSizes.windowWidthF() / 2, gameSizes.windowHeightF() / 2)
-                zIndex += rocksQuantity + 2
-                acceleration = 150f
-                deceleration = 10f
-                maxSpeed = 100f
-                degreesPerSecond = 120f
-            }
-            add<RenderComponent> {
-                sprite = Sprite(assets.get<Texture>("spaceship.png"))
-            }
-        }
-    }
-
-    private fun spawnRocks() {
-        val rockImage = assets.get<Texture>("rock.png")
-        repeat(rocksQuantity) { index ->
-            world.entity {
-                add<RockComponent>()
-                add<WrapAroundWorldComponent>()
-                add<RenderComponent> { sprite = Sprite(rockImage) }
-                add<TransformComponent> {
-                    position.x = nextInt(0, gameSizes.windowWidth - rockImage.width).toFloat()
-                    position.y = nextInt(0, gameSizes.worldHeight - rockImage.height).toFloat()
-                    zIndex += index + 1
-                    acceleration = 50f
-                    maxSpeed = 50f
-                    setSpeed(50f)
-                    setMotionAngle(nextInt(360).toFloat())
-                }
-            }
         }
     }
 
