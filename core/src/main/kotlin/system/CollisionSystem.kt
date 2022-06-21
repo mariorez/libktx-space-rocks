@@ -1,6 +1,8 @@
 package system
 
-import com.badlogic.gdx.math.Intersector.overlaps
+import com.badlogic.gdx.math.Intersector
+import com.badlogic.gdx.math.Intersector.MinimumTranslationVector
+import com.badlogic.gdx.math.Polygon
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
@@ -21,14 +23,12 @@ class CollisionSystem(
     var shoots: Family by Delegates.notNull()
 
     override fun onTickEntity(entity: Entity) {
-
         var noCollision = true
-        val rockBox = render[entity].sprite.boundingRectangle
-
+        val rockBox = render[entity].getPolygon()
         shoots.forEach { shootEntity ->
             if (noCollision) {
-                render[shootEntity].sprite.also { shootSprite ->
-                    if (overlaps(shootSprite.boundingRectangle, rockBox)) {
+                render[shootEntity].also {
+                    if (overlaps(it.getPolygon(), rockBox)) {
                         world.remove(shootEntity)
                         world.remove(entity)
                         noCollision = false
@@ -36,6 +36,18 @@ class CollisionSystem(
                 }
             }
         }
+    }
+
+    private fun overlaps(
+        thisBox: Polygon,
+        otherBox: Polygon,
+        mtv: MinimumTranslationVector = MinimumTranslationVector()
+    ): Boolean {
+        // initial test to improve performance
+        if (thisBox.boundingRectangle.overlaps(otherBox.boundingRectangle)) {
+            return Intersector.overlapConvexPolygons(thisBox, otherBox, mtv)
+        }
+        return false
     }
 }
 
