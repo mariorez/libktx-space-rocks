@@ -48,9 +48,8 @@ class GameBoot : KtxGame<KtxScreen>() {
             loadSync<Texture>("rock.png").setFilter(Linear, Linear)
             loadSync<Texture>("laser.png").setFilter(Linear, Linear)
             if (Platform.isMobile) {
-                loadSync<Texture>("button-left.png").setFilter(Linear, Linear)
-                loadSync<Texture>("button-right.png").setFilter(Linear, Linear)
-                loadSync<Texture>("button-rocket.png").setFilter(Linear, Linear)
+                loadSync<Texture>("touchpad-bg.png").setFilter(Linear, Linear)
+                loadSync<Texture>("touchpad-knob.png").setFilter(Linear, Linear)
                 loadSync<Texture>("button-laser.png").setFilter(Linear, Linear)
             }
         }

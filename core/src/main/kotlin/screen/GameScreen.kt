@@ -6,7 +6,10 @@ import GameBoot.Companion.gameSizes
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
 import component.InputComponent
@@ -33,6 +36,7 @@ class GameScreen(
 ) : BaseScreen() {
     private var spaceship: Entity by Delegates.notNull()
     private var rocksQuantity = 10
+    private lateinit var touchpad: Touchpad
     private val world = World {
         inject(batch)
         inject(camera)
@@ -57,8 +61,11 @@ class GameScreen(
             }
 
             // late injections
-            system<InputSystem>().player = spaceship
             system<ShootingSystem>().addPlayer(spaceship)
+            system<InputSystem>().also {
+                it.player = spaceship
+                if (Platform.isMobile) it.touchpad = touchpad
+            }
         }
     }
 
@@ -75,26 +82,10 @@ class GameScreen(
 
     private fun buildControls() {
         if (Platform.isMobile) {
-            val left = generateButton(assets["button-left.png"]).apply {
-                onTouchEvent(
-                    onDown = { _ -> doAction(Action(Action.Name.LEFT, Action.Type.START)) },
-                    onUp = { _ -> doAction(Action(Action.Name.LEFT, Action.Type.END)) }
-                )
-            }
-
-            val right = generateButton(assets["button-right.png"]).apply {
-                onTouchEvent(
-                    onDown = { _ -> doAction(Action(Action.Name.RIGHT, Action.Type.START)) },
-                    onUp = { _ -> doAction(Action(Action.Name.RIGHT, Action.Type.END)) }
-                )
-            }
-
-            val rocket = generateButton(assets["button-rocket.png"]).apply {
-                onTouchEvent(
-                    onDown = { _ -> doAction(Action(Action.Name.UP, Action.Type.START)) },
-                    onUp = { _ -> doAction(Action(Action.Name.UP, Action.Type.END)) }
-                )
-            }
+            touchpad = Touchpad(5f, Touchpad.TouchpadStyle().apply {
+                background = TextureRegionDrawable(TextureRegion(TextureRegion(assets.get<Texture>("touchpad-bg.png"))))
+                knob = TextureRegionDrawable(TextureRegion(assets.get<Texture>("touchpad-knob.png")))
+            })
 
             val laser = generateButton(assets["button-laser.png"]).apply {
                 onTouchEvent(
@@ -105,14 +96,13 @@ class GameScreen(
 
             hudStage.addActor(Table().apply {
                 setFillParent(true)
-                pad(10f)
-                add(left).bottom().padRight(10f)
-                add(right).expandY().expandX().left().bottom()
-                add(laser).padRight(10f).bottom()
-                add(rocket).bottom()
+                pad(5f)
+                add(touchpad).expandY().expandX().left().bottom()
+                add(laser).bottom()
             })
         } else {
             registerAction(Input.Keys.UP, Action.Name.UP)
+            registerAction(Input.Keys.DOWN, Action.Name.DOWN)
             registerAction(Input.Keys.LEFT, Action.Name.LEFT)
             registerAction(Input.Keys.RIGHT, Action.Name.RIGHT)
             registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
@@ -126,8 +116,8 @@ class GameScreen(
             add<InputComponent>()
             add<TransformComponent> {
                 position.set(gameSizes.windowWidthF() / 2, gameSizes.windowHeightF() / 2)
-                zIndex += rocksQuantity + 1
-                acceleration = 200f
+                zIndex += rocksQuantity + 2
+                acceleration = 150f
                 deceleration = 10f
                 maxSpeed = 100f
                 degreesPerSecond = 120f
@@ -148,7 +138,7 @@ class GameScreen(
                 add<TransformComponent> {
                     position.x = nextInt(0, gameSizes.windowWidth - rockImage.width).toFloat()
                     position.y = nextInt(0, gameSizes.worldHeight - rockImage.height).toFloat()
-                    zIndex += index
+                    zIndex += index + 1
                     acceleration = 50f
                     maxSpeed = 50f
                     setSpeed(50f)
@@ -163,6 +153,7 @@ class GameScreen(
         val isStarting = action.type == Action.Type.START
         when (action.name) {
             Action.Name.UP -> input.up = isStarting
+            Action.Name.DOWN -> input.down = isStarting
             Action.Name.LEFT -> input.left = isStarting
             Action.Name.RIGHT -> input.right = isStarting
             Action.Name.SHOOT -> if (action.type == Action.Type.START) input.shoot = true

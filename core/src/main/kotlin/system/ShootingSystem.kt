@@ -37,7 +37,7 @@ class ShootingSystem(
                 add<TransformComponent> {
                     position.x = transform[player].position.x + playerXCenter - laserXCenter
                     position.y = transform[player].position.y + playerYCenter - laserYCenter
-                    zIndex = 2f
+                    zIndex = 1f
                     setSpeed(400f)
                     maxSpeed = 400f
                     deceleration = 0f
