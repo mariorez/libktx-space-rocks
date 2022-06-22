@@ -23,10 +23,19 @@ class InputSystem(
     override fun onTick() {
         if (Platform.isMobile) {
             direction.set(touchpad.knobPercentX, touchpad.knobPercentY)
-            if (direction.len() > 0) {
-                transform[player].apply {
+            transform[player].apply {
+                if (direction.len() > 0) {
+                    val degrees = degreesPerSecond * deltaTime
+                    if (direction.angleDeg() in 90f..270f) {
+                        rotateBy(degrees)
+                    }
+                    if (direction.angleDeg() in 0f..90f || direction.angleDeg() in 270f..360f) {
+                        rotateBy(-degrees)
+                    }
+                }
+                if (input[player].turbo) {
                     speedUp.set(acceleration, 0f).also { speed ->
-                        accelerator.add(speed.setAngleDeg(direction.angleDeg()))
+                        accelerator.add(speed).setAngleDeg(rotation)
                     }
                 }
             }
@@ -38,7 +47,7 @@ class InputSystem(
                             val degrees = degreesPerSecond * deltaTime
                             if (playerInput.left) rotateBy(degrees)
                             if (playerInput.right) rotateBy(-degrees)
-                            if (playerInput.up) accelerator.add(speed).setAngleDeg(rotation)
+                            if (playerInput.turbo) accelerator.add(speed).setAngleDeg(rotation)
                         }
                     }
                 }

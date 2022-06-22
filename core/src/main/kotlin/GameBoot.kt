@@ -50,6 +50,7 @@ class GameBoot : KtxGame<KtxScreen>() {
                 loadSync<Texture>("touchpad-bg.png").setFilter(Linear, Linear)
                 loadSync<Texture>("touchpad-knob.png").setFilter(Linear, Linear)
                 loadSync<Texture>("button-laser.png").setFilter(Linear, Linear)
+                loadSync<Texture>("button-turbo.png").setFilter(Linear, Linear)
             }
         }
 

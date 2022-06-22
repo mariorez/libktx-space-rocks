@@ -144,16 +144,24 @@ class GameScreen(
                 )
             }
 
+            val turbo = generateButton(assets["button-turbo.png"]).apply {
+                onTouchEvent(
+                    onDown = { _ -> doAction(Action(Action.Name.TURBO, Action.Type.START)) },
+                    onUp = { _ -> doAction(Action(Action.Name.TURBO, Action.Type.END)) }
+                )
+            }
+
             hudStage.addActor(Table().apply {
                 setFillParent(true)
                 pad(5f)
                 add(touchpad).expandY().expandX().left().bottom()
+                add(turbo).padRight(10f).bottom()
                 add(laser).bottom()
             })
         } else {
-            registerAction(Input.Keys.UP, Action.Name.UP)
             registerAction(Input.Keys.LEFT, Action.Name.LEFT)
             registerAction(Input.Keys.RIGHT, Action.Name.RIGHT)
+            registerAction(Input.Keys.UP, Action.Name.TURBO)
             registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
         }
     }
@@ -162,9 +170,9 @@ class GameScreen(
         val input = world.mapper<InputComponent>()[spaceship]
         val isStarting = action.type == Action.Type.START
         when (action.name) {
-            Action.Name.UP -> input.up = isStarting
             Action.Name.LEFT -> input.left = isStarting
             Action.Name.RIGHT -> input.right = isStarting
+            Action.Name.TURBO -> input.turbo = isStarting
             Action.Name.SHOOT -> if (action.type == Action.Type.START) input.shoot = true
         }
     }
