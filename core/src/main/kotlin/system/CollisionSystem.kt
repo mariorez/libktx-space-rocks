@@ -8,6 +8,7 @@ import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.Family
 import com.github.quillraven.fleks.IteratingSystem
+import component.ParticleEffectComponent
 import component.RenderComponent
 import component.RockComponent
 import component.TransformComponent
@@ -15,8 +16,7 @@ import kotlin.properties.Delegates
 
 @AllOf([RockComponent::class])
 class CollisionSystem(
-    private val transform: ComponentMapper<TransformComponent>,
-    private val render: ComponentMapper<RenderComponent>,
+    private val render: ComponentMapper<RenderComponent>
 ) : IteratingSystem() {
 
     var player: Entity by Delegates.notNull()
@@ -29,9 +29,19 @@ class CollisionSystem(
             if (noCollision) {
                 render[shootEntity].getPolygon().also { shootBox ->
                     if (overlaps(shootBox, rockBox)) {
-                        world.remove(shootEntity)
-                        world.remove(entity)
-                        noCollision = false
+                        world.apply {
+                            noCollision = false
+                            remove(shootEntity)
+                            remove(entity)
+                            entity {
+                                add<TransformComponent> { zIndex++ }
+                                add<ParticleEffectComponent> {
+                                    load("explosion.pfx")
+                                    particle.setPosition(rockBox.x, rockBox.y)
+                                    particle.start()
+                                }
+                            }
+                        }
                     }
                 }
             }

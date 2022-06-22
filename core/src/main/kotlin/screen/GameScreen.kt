@@ -28,6 +28,7 @@ import system.CollisionSystem
 import system.FadeEffectSystem
 import system.InputSystem
 import system.MovementSystem
+import system.ParticleEffectSystem
 import system.RenderingSystem
 import system.ShootingSystem
 import system.WrapAroundWorldSystem
@@ -51,6 +52,7 @@ class GameScreen(
         system<WrapAroundWorldSystem>()
         system<CollisionSystem>()
         system<FadeEffectSystem>()
+        system<ParticleEffectSystem>()
         system<RenderingSystem>()
     }
 
