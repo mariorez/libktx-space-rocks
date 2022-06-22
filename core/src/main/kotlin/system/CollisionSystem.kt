@@ -24,6 +24,7 @@ class CollisionSystem(
 
     override fun onTickEntity(entity: Entity) {
         var noCollision = true
+        val rockSprite = render[entity].sprite
         val rockBox = render[entity].getPolygon()
         shoots.forEach { shootEntity ->
             if (noCollision) {
@@ -36,9 +37,13 @@ class CollisionSystem(
                             entity {
                                 add<TransformComponent> { zIndex++ }
                                 add<ParticleEffectComponent> {
-                                    load("explosion.pfx")
-                                    particle.setPosition(rockBox.x, rockBox.y)
-                                    particle.start()
+                                    load("explosion.pfx").apply {
+                                        setPosition(
+                                            rockSprite.x + rockSprite.width / 2,
+                                            rockSprite.y + rockSprite.height / 2
+                                        )
+                                        start()
+                                    }
                                 }
                             }
                         }
