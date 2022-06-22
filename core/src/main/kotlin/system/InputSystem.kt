@@ -35,10 +35,10 @@ class InputSystem(
                 if (playerInput.isMoving) {
                     transform[player].apply {
                         speedUp.set(acceleration, 0f).also { speed ->
-                            if (playerInput.right) accelerator.add(speed.setAngleDeg(0f))
-                            if (playerInput.up) accelerator.add(speed.setAngleDeg(90f))
-                            if (playerInput.left) accelerator.add(speed.setAngleDeg(180f))
-                            if (playerInput.down) accelerator.add(speed.setAngleDeg(270f))
+                            val degrees = degreesPerSecond * deltaTime
+                            if (playerInput.left) rotateBy(degrees)
+                            if (playerInput.right) rotateBy(-degrees)
+                            if (playerInput.up) accelerator.add(speed).setAngleDeg(rotation)
                         }
                     }
                 }

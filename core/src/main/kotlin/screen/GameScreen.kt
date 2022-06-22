@@ -152,7 +152,6 @@ class GameScreen(
             })
         } else {
             registerAction(Input.Keys.UP, Action.Name.UP)
-            registerAction(Input.Keys.DOWN, Action.Name.DOWN)
             registerAction(Input.Keys.LEFT, Action.Name.LEFT)
             registerAction(Input.Keys.RIGHT, Action.Name.RIGHT)
             registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
@@ -164,7 +163,6 @@ class GameScreen(
         val isStarting = action.type == Action.Type.START
         when (action.name) {
             Action.Name.UP -> input.up = isStarting
-            Action.Name.DOWN -> input.down = isStarting
             Action.Name.LEFT -> input.left = isStarting
             Action.Name.RIGHT -> input.right = isStarting
             Action.Name.SHOOT -> if (action.type == Action.Type.START) input.shoot = true
