@@ -10,4 +10,15 @@ data class ParticleEffectComponent(
         particle.load(fileName.toInternalFile(), fileName.toInternalFile().parent())
         return particle
     }
+
+    fun rotateBy(degrees: Float) {
+        for (emitter in particle.emitters) {
+            val angle = emitter.angle
+            val amplitude = (angle.highMax - angle.highMin) / 2f
+            val h1 = degrees + amplitude
+            val h2 = degrees - amplitude
+            angle.setHigh(h1, h2)
+            angle.setLow(degrees)
+        }
+    }
 }

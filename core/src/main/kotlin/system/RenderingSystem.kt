@@ -9,6 +9,7 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.collection.compareEntity
 import component.ParticleEffectComponent
+import component.PlayerComponent
 import component.RenderComponent
 import component.TransformComponent
 import ktx.graphics.use
@@ -18,6 +19,7 @@ import ktx.graphics.use
 class RenderingSystem(
     private val batch: SpriteBatch,
     private val camera: OrthographicCamera,
+    private val player: ComponentMapper<PlayerComponent>,
     private val transform: ComponentMapper<TransformComponent>,
     private val render: ComponentMapper<RenderComponent>,
     private val particle: ComponentMapper<ParticleEffectComponent>
@@ -33,10 +35,20 @@ class RenderingSystem(
 
     override fun onTickEntity(entity: Entity) {
         if (particle.contains(entity)) {
-            particle[entity].particle.apply {
-                draw(batch)
+            particle[entity].apply {
+                if (player.contains(entity)) {
+                    render[entity].sprite.also { sprite ->
+                        particle.setPosition(
+                            sprite.x + sprite.width / 2f,
+                            sprite.y + sprite.height / 2f
+                        )
+                        rotateBy(sprite.rotation + 180)
+                    }
+                }
+                particle.draw(batch)
             }
-        } else {
+        }
+        if (render.contains(entity)) {
             render[entity].sprite.apply {
                 setOriginCenter()
                 transform[entity].also {

@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
 import component.InputComponent
+import component.ParticleEffectComponent
 import component.PlayerComponent
 import component.RenderComponent
 import component.RockComponent
@@ -46,7 +47,6 @@ class GameScreen(
         inject(camera)
         inject(gameSizes)
         inject(assets.get<Texture>("laser.png"))
-        system<InputSystem>()
         system<MovementSystem>()
         system<ShootingSystem>()
         system<WrapAroundWorldSystem>()
@@ -54,6 +54,7 @@ class GameScreen(
         system<FadeEffectSystem>()
         system<ParticleEffectSystem>()
         system<RenderingSystem>()
+        system<InputSystem>()
     }
 
     init {
@@ -106,6 +107,9 @@ class GameScreen(
             }
             add<RenderComponent> {
                 sprite = Sprite(assets.get<Texture>("spaceship.png"))
+            }
+            add<ParticleEffectComponent> {
+                load("thruster.pfx").apply { scaleEffect(0.35f) }
             }
         }
     }

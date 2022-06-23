@@ -6,13 +6,15 @@ import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IntervalSystem
 import component.InputComponent
+import component.ParticleEffectComponent
 import component.TransformComponent
 import ktx.app.Platform
 import kotlin.properties.Delegates
 
 class InputSystem(
     private val input: ComponentMapper<InputComponent>,
-    private val transform: ComponentMapper<TransformComponent>
+    private val transform: ComponentMapper<TransformComponent>,
+    private val particle: ComponentMapper<ParticleEffectComponent>
 ) : IntervalSystem() {
 
     var player: Entity by Delegates.notNull()
@@ -34,9 +36,12 @@ class InputSystem(
                     }
                 }
                 if (input[player].turbo) {
+                    particle[player].particle.start()
                     speedUp.set(acceleration, 0f).also { speed ->
                         accelerator.add(speed).setAngleDeg(rotation)
                     }
+                } else {
+                    particle[player].particle.allowCompletion()
                 }
             }
         } else {
@@ -47,9 +52,14 @@ class InputSystem(
                             val degrees = degreesPerSecond * deltaTime
                             if (playerInput.left) rotateBy(degrees)
                             if (playerInput.right) rotateBy(-degrees)
-                            if (playerInput.turbo) accelerator.add(speed).setAngleDeg(rotation)
+                            if (playerInput.turbo) {
+                                particle[player].particle.start()
+                                accelerator.add(speed).setAngleDeg(rotation)
+                            }
                         }
                     }
+                } else {
+                    particle[player].particle.allowCompletion()
                 }
             }
         }

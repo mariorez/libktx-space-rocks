@@ -23,15 +23,15 @@ class CollisionSystem(
     var shoots: Family by Delegates.notNull()
 
     override fun onTickEntity(entity: Entity) {
-        var noCollision = true
         val rockSprite = render[entity].sprite
         val rockBox = render[entity].getPolygon()
+        var noCollision = true
         shoots.forEach { shootEntity ->
             if (noCollision) {
                 render[shootEntity].getPolygon().also { shootBox ->
                     if (overlaps(shootBox, rockBox)) {
+                        noCollision = false
                         world.apply {
-                            noCollision = false
                             remove(shootEntity)
                             remove(entity)
                             entity {
