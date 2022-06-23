@@ -58,7 +58,9 @@ class InputSystem(
                             }
                         }
                     }
-                } else {
+                }
+
+                if (!input[player].turbo) {
                     particle[player].particle.allowCompletion()
                 }
             }
