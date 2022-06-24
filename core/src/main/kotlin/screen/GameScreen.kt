@@ -64,7 +64,7 @@ class GameScreen(
 
         world.apply {
             entity {
-                add<TransformComponent>() { zIndex -= 1 }
+                add<TransformComponent> { zIndex -= 1 }
                 add<RenderComponent> { sprite = Sprite(assets.get<Texture>("space.png")) }
             }
 

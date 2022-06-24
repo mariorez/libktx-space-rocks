@@ -15,8 +15,8 @@ class ParticleEffectSystem(
         particle[entity].particle.apply {
             update(deltaTime)
             if (isComplete && !emitters.first().isContinuous) {
-                world.remove(entity)
                 dispose()
+                world.remove(entity)
             }
         }
     }
