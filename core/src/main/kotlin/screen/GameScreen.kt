@@ -70,7 +70,6 @@ class GameScreen(
 
             // late injections
             system<CollisionSystem>().also {
-                it.player = family(allOf = arrayOf(PlayerComponent::class))
                 it.shoots = family(allOf = arrayOf(ShootComponent::class))
             }
             system<InputSystem>().also {
