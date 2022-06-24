@@ -19,7 +19,7 @@ class CollisionSystem(
     private val render: ComponentMapper<RenderComponent>
 ) : IteratingSystem() {
 
-    var player: Entity by Delegates.notNull()
+    var player: Family by Delegates.notNull()
     var shoots: Family by Delegates.notNull()
 
     override fun onTickEntity(entity: Entity) {

@@ -2,37 +2,34 @@ package system
 
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.IntervalSystem
+import com.github.quillraven.fleks.IteratingSystem
 import component.FadeEffectComponent
 import component.InputComponent
+import component.PlayerComponent
 import component.RenderComponent
 import component.ShootComponent
 import component.TransformComponent
-import kotlin.properties.Delegates
 
+@AllOf([PlayerComponent::class])
 class ShootingSystem(
     private val laser: Texture,
     private val input: ComponentMapper<InputComponent>,
     private val transform: ComponentMapper<TransformComponent>,
     private val render: ComponentMapper<RenderComponent>
-) : IntervalSystem() {
+) : IteratingSystem() {
 
-    private var player: Entity by Delegates.notNull()
-    private var playerXCenter: Float by Delegates.notNull()
-    private var playerYCenter: Float by Delegates.notNull()
+    private var playerXCenter: Float? = null
+    private var playerYCenter: Float? = null
     private val laserXCenter = laser.width / 2
     private val laserYCenter = laser.height / 2
 
-    fun addPlayer(player: Entity) {
-        this.player = player
-        playerXCenter = render[player].sprite.width / 2
-        playerYCenter = render[player].sprite.height / 2
-    }
-
-    override fun onTick() {
-        if (input[player].shoot) {
+    override fun onTickEntity(entity: Entity) {
+        if (input[entity].shoot) {
+            if (playerXCenter == null) playerXCenter = render[entity].sprite.width / 2
+            if (playerYCenter == null) playerYCenter = render[entity].sprite.height / 2
             world.entity {
                 add<ShootComponent>()
                 add<RenderComponent> { sprite = Sprite(laser) }
@@ -41,18 +38,18 @@ class ShootingSystem(
                     removeEntityOnEnd = true
                 }
                 add<TransformComponent> {
-                    position.x = transform[player].position.x + playerXCenter - laserXCenter
-                    position.y = transform[player].position.y + playerYCenter - laserYCenter
+                    position.x = transform[entity].position.x + playerXCenter!! - laserXCenter
+                    position.y = transform[entity].position.y + playerYCenter!! - laserYCenter
                     zIndex = 1f
                     setSpeed(400f)
                     maxSpeed = 400f
                     deceleration = 0f
-                    rotation = transform[player].rotation
-                    setMotionAngle(transform[player].rotation)
+                    rotation = transform[entity].rotation
+                    setMotionAngle(transform[entity].rotation)
                 }
             }
 
-            input[player].shoot = false
+            input[entity].shoot = false
         }
     }
 }

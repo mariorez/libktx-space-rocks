@@ -69,13 +69,11 @@ class GameScreen(
             }
 
             // late injections
-            system<ShootingSystem>().addPlayer(spaceship)
             system<CollisionSystem>().also {
-                it.player = spaceship
+                it.player = family(allOf = arrayOf(PlayerComponent::class))
                 it.shoots = family(allOf = arrayOf(ShootComponent::class))
             }
             system<InputSystem>().also {
-                it.player = spaceship
                 if (Platform.isMobile) it.touchpad = touchpad
             }
         }
