@@ -21,6 +21,7 @@ import component.ShootComponent
 import component.TransformComponent
 import component.WrapAroundWorldComponent
 import generateButton
+import ktx.actors.onTouchDown
 import ktx.actors.onTouchEvent
 import ktx.app.Platform
 import ktx.assets.async.AssetStorage
@@ -133,6 +134,16 @@ class GameScreen(
     }
 
     private fun buildControls() {
+        val reset = generateButton(assets["reset.png"]).apply {
+            onTouchDown { restart() }
+        }
+
+        val table = Table().apply {
+            setFillParent(true)
+            pad(5f)
+            add(reset).colspan(3).expandY().expandX().top().right()
+        }
+
         if (Platform.isMobile) {
             touchpad = Touchpad(5f, Touchpad.TouchpadStyle().apply {
                 background = TextureRegionDrawable(TextureRegion(TextureRegion(assets.get<Texture>("touchpad-bg.png"))))
@@ -153,19 +164,26 @@ class GameScreen(
                 )
             }
 
-            hudStage.addActor(Table().apply {
-                setFillParent(true)
-                pad(5f)
+            table.apply {
+                row()
                 add(touchpad).expandY().expandX().left().bottom()
                 add(turbo).padRight(10f).bottom()
                 add(laser).bottom()
-            })
+            }
         } else {
             registerAction(Input.Keys.LEFT, Action.Name.LEFT)
             registerAction(Input.Keys.RIGHT, Action.Name.RIGHT)
             registerAction(Input.Keys.UP, Action.Name.TURBO)
             registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
         }
+
+        hudStage.addActor(table)
+    }
+
+    private fun restart() {
+        world.family(anyOf = arrayOf(PlayerComponent::class, RockComponent::class)).forEach { world.remove(it) }
+        spawnPlayer()
+        spawnRocks()
     }
 
     override fun doAction(action: Action) {

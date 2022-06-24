@@ -21,28 +21,24 @@ class CollisionSystem(
 
     var player: Family by Delegates.notNull()
     var shoots: Family by Delegates.notNull()
-    var noPlayerCollision = true
 
     override fun onTickEntity(entity: Entity) {
         val rockSprite = render[entity].sprite
         val rockBox = render[entity].getPolygon()
 
-        if (noPlayerCollision) {
-            player.forEach { playerEntity ->
-                render[playerEntity].getPolygon().also { playerBox ->
-                    if (!render[playerEntity].newborn && overlaps(playerBox, rockBox)) {
-                        noPlayerCollision = false
-                        explode(
-                            render[playerEntity].sprite.x + render[playerEntity].sprite.width / 2,
-                            render[playerEntity].sprite.y + render[playerEntity].sprite.height / 2
-                        )
-                        explode(
-                            rockSprite.x + rockSprite.width / 2,
-                            rockSprite.y + rockSprite.height / 2
-                        )
-                        world.remove(playerEntity)
-                        world.remove(entity)
-                    }
+        player.forEach { playerEntity ->
+            render[playerEntity].getPolygon().also { playerBox ->
+                if (!render[playerEntity].newborn && overlaps(playerBox, rockBox)) {
+                    explode(
+                        render[playerEntity].sprite.x + render[playerEntity].sprite.width / 2,
+                        render[playerEntity].sprite.y + render[playerEntity].sprite.height / 2
+                    )
+                    explode(
+                        rockSprite.x + rockSprite.width / 2,
+                        rockSprite.y + rockSprite.height / 2
+                    )
+                    world.remove(playerEntity)
+                    world.remove(entity)
                 }
             }
         }
