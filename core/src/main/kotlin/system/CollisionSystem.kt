@@ -19,34 +19,61 @@ class CollisionSystem(
     private val render: ComponentMapper<RenderComponent>
 ) : IteratingSystem() {
 
+    var player: Family by Delegates.notNull()
     var shoots: Family by Delegates.notNull()
+    var noPlayerCollision = true
 
     override fun onTickEntity(entity: Entity) {
         val rockSprite = render[entity].sprite
         val rockBox = render[entity].getPolygon()
-        var noCollision = true
+
+        if (noPlayerCollision) {
+            player.forEach { playerEntity ->
+                render[playerEntity].getPolygon().also { playerBox ->
+                    if (!render[playerEntity].newborn && overlaps(playerBox, rockBox)) {
+                        noPlayerCollision = false
+                        explode(
+                            render[playerEntity].sprite.x + render[playerEntity].sprite.width / 2,
+                            render[playerEntity].sprite.y + render[playerEntity].sprite.height / 2
+                        )
+                        explode(
+                            rockSprite.x + rockSprite.width / 2,
+                            rockSprite.y + rockSprite.height / 2
+                        )
+                        world.remove(playerEntity)
+                        world.remove(entity)
+                    }
+                }
+            }
+        }
+
+        var noLaseCollision = true
         shoots.forEach { shootEntity ->
-            if (noCollision) {
+            if (noLaseCollision) {
                 render[shootEntity].getPolygon().also { shootBox ->
-                    if (overlaps(shootBox, rockBox)) {
-                        noCollision = false
+                    if (!render[shootEntity].newborn && overlaps(shootBox, rockBox)) {
+                        noLaseCollision = false
                         world.apply {
                             remove(shootEntity)
                             remove(entity)
-                            entity {
-                                add<TransformComponent> { zIndex++ }
-                                add<ParticleEffectComponent> {
-                                    load("explosion.pfx").apply {
-                                        setPosition(
-                                            rockSprite.x + rockSprite.width / 2,
-                                            rockSprite.y + rockSprite.height / 2
-                                        )
-                                        start()
-                                    }
-                                }
-                            }
                         }
+                        explode(
+                            rockSprite.x + rockSprite.width / 2,
+                            rockSprite.y + rockSprite.height / 2
+                        )
                     }
+                }
+            }
+        }
+    }
+
+    private fun explode(x: Float, y: Float) {
+        world.entity {
+            add<TransformComponent> { zIndex++ }
+            add<ParticleEffectComponent> {
+                load("explosion.pfx").apply {
+                    setPosition(x, y)
+                    start()
                 }
             }
         }

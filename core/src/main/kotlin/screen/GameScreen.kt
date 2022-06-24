@@ -70,6 +70,7 @@ class GameScreen(
 
             // late injections
             system<CollisionSystem>().also {
+                it.player = family(allOf = arrayOf(PlayerComponent::class))
                 it.shoots = family(allOf = arrayOf(ShootComponent::class))
             }
             system<InputSystem>().also {
@@ -168,7 +169,9 @@ class GameScreen(
     }
 
     override fun doAction(action: Action) {
-        val input = world.mapper<InputComponent>()[spaceship]
+        val mapper = world.mapper<InputComponent>()
+        if (!mapper.contains(spaceship)) return
+        val input = mapper[spaceship]
         val isStarting = action.type == Action.Type.START
         when (action.name) {
             Action.Name.LEFT -> input.left = isStarting

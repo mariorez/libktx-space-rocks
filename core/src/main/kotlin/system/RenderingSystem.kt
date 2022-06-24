@@ -48,12 +48,15 @@ class RenderingSystem(
         }
 
         if (render.contains(entity)) {
-            render[entity].sprite.apply {
-                transform[entity].also {
-                    rotation = it.rotation
-                    setBounds(it.position.x, it.position.y, width, height)
+            render[entity].apply {
+                newborn = false
+                sprite.apply {
+                    transform[entity].also {
+                        rotation = it.rotation
+                        setBounds(it.position.x, it.position.y, width, height)
+                    }
+                    draw(batch)
                 }
-                draw(batch)
             }
         }
     }
