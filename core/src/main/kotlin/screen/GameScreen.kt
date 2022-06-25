@@ -12,11 +12,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
+import component.FollowComponent
 import component.InputComponent
 import component.ParticleEffectComponent
 import component.PlayerComponent
 import component.RenderComponent
 import component.RockComponent
+import component.ShieldComponent
 import component.ShootComponent
 import component.TransformComponent
 import component.WrapAroundWorldComponent
@@ -28,6 +30,7 @@ import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
 import system.CollisionSystem
 import system.FadeEffectSystem
+import system.FollowSystem
 import system.InputSystem
 import system.MovementSystem
 import system.ParticleEffectSystem
@@ -49,6 +52,7 @@ class GameScreen(
         inject(gameSizes)
         inject(assets.get<Texture>("laser.png"))
         system<MovementSystem>()
+        system<FollowSystem>()
         system<ShootingSystem>()
         system<WrapAroundWorldSystem>()
         system<CollisionSystem>()
@@ -60,6 +64,7 @@ class GameScreen(
 
     init {
         spawnPlayer()
+        spawnShield()
         spawnRocks()
         buildControls()
 
@@ -113,6 +118,19 @@ class GameScreen(
         }
     }
 
+    private fun spawnShield() {
+        world.entity {
+            add<ShieldComponent>()
+            add<TransformComponent>()
+            add<FollowComponent> {
+                target = spaceship
+                centralize = true
+                above = true
+            }
+            add<RenderComponent> { sprite = Sprite(assets.get<Texture>("shield.png")) }
+        }
+    }
+
     private fun spawnRocks() {
         val rockImage = assets.get<Texture>("rock.png")
         repeat(rocksQuantity) { index ->
@@ -131,6 +149,14 @@ class GameScreen(
                 }
             }
         }
+    }
+
+    private fun restart() {
+        world.family(anyOf = arrayOf(PlayerComponent::class, ShieldComponent::class, RockComponent::class))
+            .forEach { world.remove(it) }
+        spawnPlayer()
+        spawnShield()
+        spawnRocks()
     }
 
     private fun buildControls() {
@@ -180,22 +206,15 @@ class GameScreen(
         hudStage.addActor(table)
     }
 
-    private fun restart() {
-        world.family(anyOf = arrayOf(PlayerComponent::class, RockComponent::class)).forEach { world.remove(it) }
-        spawnPlayer()
-        spawnRocks()
-    }
-
     override fun doAction(action: Action) {
-        val mapper = world.mapper<InputComponent>()
-        if (!mapper.contains(spaceship)) return
-        val input = mapper[spaceship]
+        val input = world.mapper<InputComponent>()
+        if (!input.contains(spaceship)) return
         val isStarting = action.type == Action.Type.START
         when (action.name) {
-            Action.Name.LEFT -> input.left = isStarting
-            Action.Name.RIGHT -> input.right = isStarting
-            Action.Name.TURBO -> input.turbo = isStarting
-            Action.Name.SHOOT -> if (action.type == Action.Type.START) input.shoot = true
+            Action.Name.LEFT -> input[spaceship].left = isStarting
+            Action.Name.RIGHT -> input[spaceship].right = isStarting
+            Action.Name.TURBO -> input[spaceship].turbo = isStarting
+            Action.Name.SHOOT -> if (action.type == Action.Type.START) input[spaceship].shoot = true
         }
     }
 }

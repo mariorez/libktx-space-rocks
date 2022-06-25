@@ -28,7 +28,7 @@ class CollisionSystem(
 
         player.forEach { playerEntity ->
             render[playerEntity].getPolygon().also { playerBox ->
-                if (!render[playerEntity].newborn && overlaps(playerBox, rockBox)) {
+                if (render[playerEntity].rendered && overlaps(playerBox, rockBox)) {
                     explode(
                         render[playerEntity].sprite.x + render[playerEntity].sprite.width / 2,
                         render[playerEntity].sprite.y + render[playerEntity].sprite.height / 2
@@ -47,7 +47,7 @@ class CollisionSystem(
         shoots.forEach { shootEntity ->
             if (noLaseCollision) {
                 render[shootEntity].getPolygon().also { shootBox ->
-                    if (!render[shootEntity].newborn && overlaps(shootBox, rockBox)) {
+                    if (render[shootEntity].rendered && overlaps(shootBox, rockBox)) {
                         noLaseCollision = false
                         world.apply {
                             remove(shootEntity)

@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Polygon
 
 data class RenderComponent(
     var sprite: Sprite = Sprite(),
-    var newborn: Boolean = true,
+    var rendered: Boolean = false
 ) {
     private var polygon: Polygon? = null
 
