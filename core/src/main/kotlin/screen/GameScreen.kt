@@ -16,6 +16,7 @@ import component.FollowComponent
 import component.InputComponent
 import component.ParticleEffectComponent
 import component.PlayerComponent
+import component.PulseEffectComponent
 import component.RenderComponent
 import component.RockComponent
 import component.ShieldComponent
@@ -34,6 +35,7 @@ import system.FollowSystem
 import system.InputSystem
 import system.MovementSystem
 import system.ParticleEffectSystem
+import system.PulseEffectSystem
 import system.RenderingSystem
 import system.ShootingSystem
 import system.WrapAroundWorldSystem
@@ -57,6 +59,7 @@ class GameScreen(
         system<WrapAroundWorldSystem>()
         system<CollisionSystem>()
         system<FadeEffectSystem>()
+        system<PulseEffectSystem>()
         system<ParticleEffectSystem>()
         system<RenderingSystem>()
         system<InputSystem>()
@@ -123,6 +126,11 @@ class GameScreen(
         world.entity {
             add<ShieldComponent> { power = 100f }
             add<TransformComponent>()
+            add<PulseEffectComponent> {
+                maxScale = 1.05f
+                minScale = 0.95f
+                duration = 5f
+            }
             add<FollowComponent> {
                 target = spaceship
                 centralize = true
