@@ -22,7 +22,7 @@ Running the source code:
 Running the `jar` file:
 
 ```
-java -jar starfishcollector-{version}.jar
+java -jar spacerocks-{version}.jar
 ```
 
 ## Technologies used
