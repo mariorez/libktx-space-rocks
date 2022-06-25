@@ -10,18 +10,22 @@ import component.TransformComponent
 
 @AllOf([FollowComponent::class])
 class FollowSystem(
-    private val follow: ComponentMapper<FollowComponent>,
-    private val transform: ComponentMapper<TransformComponent>,
-    private val render: ComponentMapper<RenderComponent>
+        private val follow: ComponentMapper<FollowComponent>,
+        private val transform: ComponentMapper<TransformComponent>,
+        private val render: ComponentMapper<RenderComponent>
 ) : IteratingSystem() {
 
     override fun onTickEntity(entity: Entity) {
 
         val targetEntity = follow[entity].target as Entity
-        if (!render.contains(targetEntity)) return
 
-        val targetSprite = render[targetEntity].sprite
+        if (!render.contains(targetEntity)) {
+            world.remove(entity)
+            return
+        }
+
         val followSprite = render[entity].sprite
+        val targetSprite = render[targetEntity].sprite
 
         transform[entity].apply {
             if (follow[entity].centralize) {
@@ -30,6 +34,7 @@ class FollowSystem(
             } else {
                 position.set(targetSprite.x, targetSprite.y)
             }
+
             if (follow[entity].above) zIndex = transform[targetEntity].zIndex + 1
         }
     }
