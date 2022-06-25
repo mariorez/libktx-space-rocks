@@ -1,6 +1,5 @@
 package system
 
-import com.badlogic.gdx.Gdx
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
@@ -12,17 +11,17 @@ import component.RenderComponent
 
 @AllOf([RenderComponent::class, FadeEffectComponent::class])
 class FadeEffectSystem(
-    private val render: ComponentMapper<RenderComponent>,
-    private val fade: ComponentMapper<FadeEffectComponent>
+    private val renderMapper: ComponentMapper<RenderComponent>,
+    private val fadeMapper: ComponentMapper<FadeEffectComponent>
 ) : IteratingSystem() {
 
     override fun onTickEntity(entity: Entity) {
 
-        val sprite = render[entity].sprite
+        val sprite = renderMapper[entity].sprite
 
-        fade[entity].apply {
+        fadeMapper[entity].apply {
 
-            val fadeAmount = (1f / Gdx.graphics.framesPerSecond) / duration
+            val fadeAmount = deltaTime / duration
 
             when (mode) {
                 IN -> {
@@ -41,7 +40,7 @@ class FadeEffectSystem(
 
     private fun cleanUp(entity: Entity, remove: Boolean) {
         configureEntity(entity) {
-            fade.remove(entity)
+            fadeMapper.remove(entity)
         }
         if (remove) world.remove(entity)
     }

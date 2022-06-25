@@ -20,18 +20,18 @@ class PulseEffectSystem(
         val sprite = renderMapper[entity].sprite
 
         pulseMapper[entity].apply {
+
             val scaleAmount = deltaTime / duration
 
-            if (sprite.scaleX < maxScale && scaleMode == IN) {
-                sprite.scale(scaleAmount)
-            } else {
-                scaleMode = OUT
-            }
-
-            if (sprite.scaleX > minScale && scaleMode == OUT) {
-                sprite.scale(-scaleAmount)
-            } else {
-                scaleMode = IN
+            when (scaleMode) {
+                IN -> {
+                    if (sprite.scaleX < maxScale) sprite.scale(scaleAmount)
+                    else scaleMode = OUT
+                }
+                OUT -> {
+                    if (sprite.scaleX > minScale) sprite.scale(-scaleAmount)
+                    else scaleMode = IN
+                }
             }
         }
     }
