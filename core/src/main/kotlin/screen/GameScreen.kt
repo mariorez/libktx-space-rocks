@@ -76,7 +76,8 @@ class GameScreen(
 
             // late injections
             system<CollisionSystem>().also {
-                it.player = family(allOf = arrayOf(PlayerComponent::class))
+                it.players = family(allOf = arrayOf(PlayerComponent::class))
+                it.shields = family(allOf = arrayOf(ShieldComponent::class))
                 it.shoots = family(allOf = arrayOf(ShootComponent::class))
             }
             system<InputSystem>().also {
@@ -120,7 +121,7 @@ class GameScreen(
 
     private fun spawnShield() {
         world.entity {
-            add<ShieldComponent>()
+            add<ShieldComponent> { power = 100f }
             add<TransformComponent>()
             add<FollowComponent> {
                 target = spaceship

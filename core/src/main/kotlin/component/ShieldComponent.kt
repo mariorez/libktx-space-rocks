@@ -1,3 +1,5 @@
 package component
 
-class ShieldComponent
+data class ShieldComponent(
+    var power: Float = 0f
+)

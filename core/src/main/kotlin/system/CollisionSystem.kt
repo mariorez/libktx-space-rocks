@@ -11,27 +11,30 @@ import com.github.quillraven.fleks.IteratingSystem
 import component.ParticleEffectComponent
 import component.RenderComponent
 import component.RockComponent
+import component.ShieldComponent
 import component.TransformComponent
 import kotlin.properties.Delegates
 
 @AllOf([RockComponent::class])
 class CollisionSystem(
-    private val render: ComponentMapper<RenderComponent>
+    private val renderMapper: ComponentMapper<RenderComponent>,
+    private val shieldMapper: ComponentMapper<ShieldComponent>
 ) : IteratingSystem() {
 
-    var player: Family by Delegates.notNull()
+    var players: Family by Delegates.notNull()
+    var shields: Family by Delegates.notNull()
     var shoots: Family by Delegates.notNull()
 
     override fun onTickEntity(entity: Entity) {
-        val rockSprite = render[entity].sprite
-        val rockBox = render[entity].getPolygon()
+        val rockSprite = renderMapper[entity].sprite
+        val rockBox = renderMapper[entity].getPolygon()
 
-        player.forEach { playerEntity ->
-            render[playerEntity].getPolygon().also { playerBox ->
-                if (render[playerEntity].rendered && overlaps(playerBox, rockBox)) {
+        players.forEach { playerEntity ->
+            renderMapper[playerEntity].getPolygon(8).also { playerBox ->
+                if (renderMapper[playerEntity].rendered && overlaps(playerBox, rockBox)) {
                     explode(
-                        render[playerEntity].sprite.x + render[playerEntity].sprite.width / 2,
-                        render[playerEntity].sprite.y + render[playerEntity].sprite.height / 2
+                        renderMapper[playerEntity].sprite.x + renderMapper[playerEntity].sprite.width / 2,
+                        renderMapper[playerEntity].sprite.y + renderMapper[playerEntity].sprite.height / 2
                     )
                     explode(
                         rockSprite.x + rockSprite.width / 2,
@@ -43,11 +46,28 @@ class CollisionSystem(
             }
         }
 
+        shields.forEach { shieldEntity ->
+            renderMapper[shieldEntity].getPolygon(8).also { shieldBox ->
+                if (renderMapper[shieldEntity].rendered && overlaps(shieldBox, rockBox)) {
+                    shieldMapper[shieldEntity].power -= 34f
+                    renderMapper[shieldEntity].sprite.setAlpha(shieldMapper[shieldEntity].power / 100f)
+                    if (shieldMapper[shieldEntity].power <= 0f) {
+                        world.remove(shieldEntity)
+                    }
+                    explode(
+                        rockSprite.x + rockSprite.width / 2,
+                        rockSprite.y + rockSprite.height / 2
+                    )
+                    world.remove(entity)
+                }
+            }
+        }
+
         var noLaseCollision = true
         shoots.forEach { shootEntity ->
             if (noLaseCollision) {
-                render[shootEntity].getPolygon().also { shootBox ->
-                    if (render[shootEntity].rendered && overlaps(shootBox, rockBox)) {
+                renderMapper[shootEntity].getPolygon().also { shootBox ->
+                    if (renderMapper[shootEntity].rendered && overlaps(shootBox, rockBox)) {
                         noLaseCollision = false
                         world.apply {
                             remove(shootEntity)
