@@ -6,6 +6,7 @@ import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
+import com.github.quillraven.fleks.Qualifier
 import component.FadeEffectComponent
 import component.InputComponent
 import component.PlayerComponent
@@ -15,7 +16,7 @@ import component.TransformComponent
 
 @AllOf([PlayerComponent::class])
 class ShootingSystem(
-    private val laser: Texture,
+    @Qualifier("laser") private val laser: Texture,
     private val input: ComponentMapper<InputComponent>,
     private val transform: ComponentMapper<TransformComponent>,
     private val render: ComponentMapper<RenderComponent>

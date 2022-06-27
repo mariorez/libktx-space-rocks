@@ -47,6 +47,7 @@ class GameBoot : KtxGame<KtxScreen>() {
             loadSync<Texture>("rock.png").setFilter(Linear, Linear)
             loadSync<Texture>("laser.png").setFilter(Linear, Linear)
             loadSync<Texture>("shield.png").setFilter(Linear, Linear)
+            loadSync<Texture>("warp.png").setFilter(Linear, Linear)
             loadSync<Texture>("reset.png").setFilter(Linear, Linear)
             if (Platform.isMobile) {
                 loadSync<Texture>("touchpad-bg.png").setFilter(Linear, Linear)

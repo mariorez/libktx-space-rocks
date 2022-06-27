@@ -29,6 +29,7 @@ import ktx.actors.onTouchEvent
 import ktx.app.Platform
 import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
+import system.AnimationSystem
 import system.CollisionSystem
 import system.FadeEffectSystem
 import system.FollowSystem
@@ -53,13 +54,15 @@ class GameScreen(
         inject(batch)
         inject(camera)
         inject(gameSizes)
-        inject(assets.get<Texture>("laser.png"))
+        inject("laser", assets.get<Texture>("laser.png"))
+        inject("warp", assets.get<Texture>("warp.png"))
         system<MovementSystem>()
         system<WarpSystem>()
         system<FollowSystem>()
         system<ShootingSystem>()
         system<WrapAroundWorldSystem>()
         system<CollisionSystem>()
+        system<AnimationSystem>()
         system<FadeEffectSystem>()
         system<PulseEffectSystem>()
         system<ParticleEffectSystem>()
