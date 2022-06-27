@@ -181,7 +181,7 @@ class GameScreen(
         val table = Table().apply {
             setFillParent(true)
             pad(5f)
-            add(reset).colspan(3).expandY().expandX().top().right()
+            add(reset).colspan(4).expandY().expandX().top().right()
         }
 
         if (Platform.isMobile) {
@@ -204,11 +204,19 @@ class GameScreen(
                 )
             }
 
+            val warp = generateButton(assets["button-warp.png"]).apply {
+                onTouchEvent(
+                    onDown = { _ -> doAction(Action(Action.Name.WARP, Action.Type.START)) },
+                    onUp = { _ -> doAction(Action(Action.Name.WARP, Action.Type.END)) }
+                )
+            }
+
             table.apply {
                 row()
                 add(touchpad).expandY().expandX().left().bottom()
                 add(turbo).padRight(10f).bottom()
                 add(laser).bottom()
+                add(warp).bottom()
             }
         } else {
             registerAction(Input.Keys.LEFT, Action.Name.LEFT)
