@@ -8,7 +8,7 @@ data class GameSizes(
     var windowWidth: Int,
     var windowHeight: Int,
     var worldWidth: Int = windowWidth,
-    var worldHeight: Int = worldWidth
+    var worldHeight: Int = windowHeight
 ) {
     fun windowWidthF(): Float = windowWidth.toFloat()
     fun windowHeightF(): Float = windowHeight.toFloat()
