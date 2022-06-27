@@ -38,6 +38,7 @@ import system.ParticleEffectSystem
 import system.PulseEffectSystem
 import system.RenderingSystem
 import system.ShootingSystem
+import system.WarpSystem
 import system.WrapAroundWorldSystem
 import kotlin.properties.Delegates
 import kotlin.random.Random.Default.nextInt
@@ -54,6 +55,7 @@ class GameScreen(
         inject(gameSizes)
         inject(assets.get<Texture>("laser.png"))
         system<MovementSystem>()
+        system<WarpSystem>()
         system<FollowSystem>()
         system<ShootingSystem>()
         system<WrapAroundWorldSystem>()
@@ -210,6 +212,7 @@ class GameScreen(
             registerAction(Input.Keys.RIGHT, Action.Name.RIGHT)
             registerAction(Input.Keys.UP, Action.Name.TURBO)
             registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
+            registerAction(Input.Keys.X, Action.Name.WARP)
         }
 
         hudStage.addActor(table)
@@ -223,6 +226,7 @@ class GameScreen(
             Action.Name.LEFT -> input[spaceship].left = isStarting
             Action.Name.RIGHT -> input[spaceship].right = isStarting
             Action.Name.TURBO -> input[spaceship].turbo = isStarting
+            Action.Name.WARP -> input[spaceship].warp = isStarting
             Action.Name.SHOOT -> if (action.type == Action.Type.START) input[spaceship].shoot = true
         }
     }
