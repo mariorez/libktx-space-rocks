@@ -49,7 +49,8 @@ class WarpSystem(
                 zIndex = z
             }
             add<FadeEffectComponent> {
-                duration = 2f
+                delay = 1f
+                duration = 0.5f
                 removeEntityOnEnd = true
             }
             add<AnimationComponent> {

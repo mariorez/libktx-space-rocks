@@ -15,11 +15,18 @@ class FadeEffectSystem(
     private val fadeMapper: ComponentMapper<FadeEffectComponent>
 ) : IteratingSystem() {
 
+    private val elapsedTime = mutableMapOf<Int, Float>()
+
     override fun onTickEntity(entity: Entity) {
 
         val sprite = renderMapper[entity].sprite
 
         fadeMapper[entity].apply {
+
+            if (delay > 0f) {
+                elapsedTime[entity.id] = elapsedTime.getOrDefault(entity.id, 0f) + deltaTime / delay
+                if (elapsedTime[entity.id]!! < delay) return
+            }
 
             val fadeAmount = deltaTime / duration
 
@@ -42,6 +49,7 @@ class FadeEffectSystem(
         configureEntity(entity) {
             fadeMapper.remove(entity)
         }
+        elapsedTime.remove(entity.id)
         if (remove) world.remove(entity)
     }
 }
