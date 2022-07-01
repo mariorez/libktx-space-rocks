@@ -12,35 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
-import component.FollowComponent
-import component.InputComponent
-import component.ParticleEffectComponent
-import component.PlayerComponent
-import component.PulseEffectComponent
-import component.RenderComponent
-import component.RockComponent
-import component.ShieldComponent
-import component.ShootComponent
-import component.TransformComponent
-import component.WrapAroundWorldComponent
+import component.*
 import generateButton
 import ktx.actors.onTouchDown
 import ktx.actors.onTouchEvent
 import ktx.app.Platform
 import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
-import system.AnimationSystem
-import system.CollisionSystem
-import system.FadeEffectSystem
-import system.FollowSystem
-import system.InputSystem
-import system.MovementSystem
-import system.ParticleEffectSystem
-import system.PulseEffectSystem
-import system.RenderingSystem
-import system.ShootingSystem
-import system.WarpSystem
-import system.WrapAroundWorldSystem
+import system.*
 import kotlin.properties.Delegates
 import kotlin.random.Random.Default.nextInt
 
@@ -186,7 +165,7 @@ class GameScreen(
 
         if (Platform.isMobile) {
             touchpad = Touchpad(5f, Touchpad.TouchpadStyle().apply {
-                background = TextureRegionDrawable(TextureRegion(TextureRegion(assets.get<Texture>("touchpad-bg.png"))))
+                background = TextureRegionDrawable(TextureRegion(assets.get<Texture>("touchpad-bg.png")))
                 knob = TextureRegionDrawable(TextureRegion(assets.get<Texture>("touchpad-knob.png")))
             })
 
