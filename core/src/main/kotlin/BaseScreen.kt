@@ -1,4 +1,4 @@
-import GameBoot.Companion.gameSizes
+import Main.Companion.gameSizes
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.OrthographicCamera

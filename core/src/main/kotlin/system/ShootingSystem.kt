@@ -2,22 +2,16 @@ package system
 
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
-import com.github.quillraven.fleks.AllOf
-import com.github.quillraven.fleks.ComponentMapper
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.Qualifier
-import component.FadeEffectComponent
-import component.InputComponent
-import component.PlayerComponent
-import component.RenderComponent
-import component.ShootComponent
-import component.TransformComponent
+import com.github.quillraven.fleks.*
+import component.*
+import listener.ScoreListener
 
 @AllOf([PlayerComponent::class])
 class ShootingSystem(
     @Qualifier("laser") private val laser: Texture,
+    private val score: ScoreListener,
     private val input: ComponentMapper<InputComponent>,
+    private val playerMapper: ComponentMapper<PlayerComponent>,
     private val transform: ComponentMapper<TransformComponent>,
     private val render: ComponentMapper<RenderComponent>
 ) : IteratingSystem() {
@@ -29,8 +23,10 @@ class ShootingSystem(
 
     override fun onTickEntity(entity: Entity) {
 
-        if (!input[entity].shoot) return
+        if (!input[entity].shoot || playerMapper[entity].ammunition <= 0) return
         input[entity].shoot = false
+        playerMapper[entity].ammunition--
+        score.ammunition = playerMapper[entity].ammunition
 
         if (playerXCenter == null) playerXCenter = render[entity].sprite.width / 2
         if (playerYCenter == null) playerYCenter = render[entity].sprite.height / 2

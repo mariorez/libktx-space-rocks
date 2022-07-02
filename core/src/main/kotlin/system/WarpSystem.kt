@@ -1,6 +1,6 @@
 package system
 
-import GameBoot.Companion.gameSizes
+import Main.Companion.gameSizes
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion

@@ -2,11 +2,14 @@ package screen
 
 import Action
 import BaseScreen
-import GameBoot.Companion.gameSizes
+import Main.Companion.gameSizes
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -14,11 +17,13 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
 import component.*
 import generateButton
+import ktx.actors.alpha
 import ktx.actors.onTouchDown
 import ktx.actors.onTouchEvent
 import ktx.app.Platform
 import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
+import listener.ScoreListener
 import system.*
 import kotlin.properties.Delegates
 import kotlin.random.Random.Default.nextInt
@@ -27,12 +32,17 @@ class GameScreen(
     private val assets: AssetStorage
 ) : BaseScreen() {
     private var spaceship: Entity by Delegates.notNull()
-    private var rocksQuantity = 10
+    private val rocksQuantity = 10
+    private val ammunition = 10
+    private val shieldPower = 100f
+    private var score = ScoreListener(rocksQuantity, ammunition, shieldPower)
+    private var scoreLabel = Label("", LabelStyle().apply { font = assets.get<BitmapFont>("open-sans.ttf") })
     private lateinit var touchpad: Touchpad
     private val world = World {
         inject(batch)
         inject(camera)
         inject(gameSizes)
+        inject(score)
         inject("laser", assets.get<Texture>("laser.png"))
         inject("warp", assets.get<Texture>("warp.png"))
         system<MovementSystem>()
@@ -74,6 +84,7 @@ class GameScreen(
     }
 
     override fun render(delta: Float) {
+        scoreLabel.setText(score.print())
         world.update(delta)
         hudStage.draw()
     }
@@ -86,7 +97,7 @@ class GameScreen(
 
     private fun spawnPlayer() {
         spaceship = world.entity {
-            add<PlayerComponent>()
+            add<PlayerComponent> { ammunition = this@GameScreen.ammunition }
             add<WrapAroundWorldComponent>()
             add<InputComponent>()
             add<TransformComponent> {
@@ -108,7 +119,7 @@ class GameScreen(
 
     private fun spawnShield() {
         world.entity {
-            add<ShieldComponent> { power = 100f }
+            add<ShieldComponent> { power = shieldPower }
             add<TransformComponent>()
             add<PulseEffectComponent> {
                 maxScale = 1.05f
@@ -150,6 +161,7 @@ class GameScreen(
         spawnPlayer()
         spawnShield()
         spawnRocks()
+        score.reset(rocksQuantity, ammunition, shieldPower)
     }
 
     private fun buildControls() {
@@ -157,11 +169,13 @@ class GameScreen(
             onTouchDown { restart() }
         }
 
-        val table = Table().apply {
+        hudStage.addActor(Table().apply {
             setFillParent(true)
             pad(5f)
-            add(reset).colspan(4).expandY().expandX().top().right()
-        }
+            add(scoreLabel).expandX().expandY().left().top()
+            add(reset).top().right()
+            alpha = 0.5f
+        })
 
         if (Platform.isMobile) {
             touchpad = Touchpad(5f, Touchpad.TouchpadStyle().apply {
@@ -190,13 +204,14 @@ class GameScreen(
                 )
             }
 
-            table.apply {
-                row()
+            hudStage.addActor(Table().apply {
+                setFillParent(true)
+                pad(5f)
                 add(touchpad).expandY().expandX().left().bottom()
-                add(turbo).padRight(10f).bottom()
-                add(laser).bottom()
-                add(warp).bottom()
-            }
+                add(turbo).padRight(10f).bottom().right()
+                add(laser).bottom().right()
+                add(warp).bottom().right()
+            })
         } else {
             registerAction(Input.Keys.LEFT, Action.Name.LEFT)
             registerAction(Input.Keys.RIGHT, Action.Name.RIGHT)
@@ -204,8 +219,6 @@ class GameScreen(
             registerAction(Input.Keys.SPACE, Action.Name.SHOOT)
             registerAction(Input.Keys.X, Action.Name.WARP)
         }
-
-        hudStage.addActor(table)
     }
 
     override fun doAction(action: Action) {

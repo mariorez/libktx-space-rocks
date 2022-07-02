@@ -13,10 +13,12 @@ import component.RenderComponent
 import component.RockComponent
 import component.ShieldComponent
 import component.TransformComponent
+import listener.ScoreListener
 import kotlin.properties.Delegates
 
 @AllOf([RockComponent::class])
 class CollisionSystem(
+    private val score: ScoreListener,
     private val renderMapper: ComponentMapper<RenderComponent>,
     private val shieldMapper: ComponentMapper<ShieldComponent>
 ) : IteratingSystem() {
@@ -50,6 +52,8 @@ class CollisionSystem(
             renderMapper[shieldEntity].getPolygon(8).also { shieldBox ->
                 if (renderMapper[shieldEntity].rendered && overlaps(shieldBox, rockBox)) {
                     shieldMapper[shieldEntity].power -= 34f
+                    score.rocks--
+                    score.shieldPower = if (shieldMapper[shieldEntity].power <= 0) 0f else shieldMapper[shieldEntity].power
                     renderMapper[shieldEntity].sprite.setAlpha(shieldMapper[shieldEntity].power / 100f)
                     if (shieldMapper[shieldEntity].power <= 0f) {
                         world.remove(shieldEntity)
@@ -69,6 +73,7 @@ class CollisionSystem(
                 renderMapper[shootEntity].getPolygon().also { shootBox ->
                     if (renderMapper[shootEntity].rendered && overlaps(shootBox, rockBox)) {
                         noLaseCollision = false
+                        score.rocks--
                         world.apply {
                             remove(shootEntity)
                             remove(entity)

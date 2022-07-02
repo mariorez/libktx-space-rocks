@@ -1,3 +1,5 @@
 package component
 
-class PlayerComponent
+data class PlayerComponent(
+    var ammunition: Int = 0
+)
