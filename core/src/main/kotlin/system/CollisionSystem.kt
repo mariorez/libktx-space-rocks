@@ -34,6 +34,7 @@ class CollisionSystem(
         players.forEach { playerEntity ->
             renderMapper[playerEntity].getPolygon(8).also { playerBox ->
                 if (renderMapper[playerEntity].rendered && overlaps(playerBox, rockBox)) {
+                    score.rocks--
                     explode(
                         renderMapper[playerEntity].sprite.x + renderMapper[playerEntity].sprite.width / 2,
                         renderMapper[playerEntity].sprite.y + renderMapper[playerEntity].sprite.height / 2
