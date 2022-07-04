@@ -30,17 +30,19 @@ class InputSystem(
             transform[entity].apply {
                 if (direction.len() > 0) {
                     val degrees = degreesPerSecond * deltaTime
-                    if (direction.angleDeg() in 90f..270f) {
+                    if (direction.angleDeg() in 135f..270f) {
                         rotateBy(degrees)
                     }
-                    if (direction.angleDeg() in 0f..90f || direction.angleDeg() in 270f..360f) {
+                    if (direction.angleDeg() in 0f..45f || direction.angleDeg() in 270f..360f) {
                         rotateBy(-degrees)
                     }
-                }
-                if (input[entity].turbo) {
-                    particle[entity].particle.start()
-                    speedUp.set(acceleration, 0f).also { speed ->
-                        accelerator.add(speed).setAngleDeg(rotation)
+                    if (direction.angleDeg() in 45f..135f) {
+                        particle[entity].particle.start()
+                        speedUp.set(acceleration, 0f).also { speed ->
+                            accelerator.add(speed).setAngleDeg(rotation)
+                        }
+                    } else {
+                        particle[entity].particle.allowCompletion()
                     }
                 } else {
                     particle[entity].particle.allowCompletion()

@@ -112,7 +112,10 @@ class GameScreen(
                 sprite = Sprite(assets.get<Texture>("spaceship.png"))
             }
             add<ParticleEffectComponent> {
-                load("thruster.pfx").apply { scaleEffect(0.35f) }
+                load("thruster.pfx").apply {
+                    scaleEffect(0.35f)
+                    allowCompletion()
+                }
             }
         }
     }
@@ -190,13 +193,6 @@ class GameScreen(
                 )
             }
 
-            val turbo = generateButton(assets["button-turbo.png"]).apply {
-                onTouchEvent(
-                    onDown = { _ -> doAction(Action(Action.Name.TURBO, Action.Type.START)) },
-                    onUp = { _ -> doAction(Action(Action.Name.TURBO, Action.Type.END)) }
-                )
-            }
-
             val warp = generateButton(assets["button-warp.png"]).apply {
                 onTouchEvent(
                     onDown = { _ -> doAction(Action(Action.Name.WARP, Action.Type.START)) },
@@ -208,7 +204,6 @@ class GameScreen(
                 setFillParent(true)
                 pad(5f)
                 add(touchpad).expandY().expandX().left().bottom()
-                add(turbo).padRight(10f).bottom().right()
                 add(laser).bottom().right()
                 add(warp).bottom().right()
             })
