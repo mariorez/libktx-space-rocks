@@ -49,7 +49,6 @@ class RenderingSystem(
 
         if (render.contains(entity)) {
             render[entity].apply {
-                rendered = true
                 sprite.apply {
                     transform[entity].also {
                         rotation = it.rotation
