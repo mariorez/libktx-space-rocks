@@ -35,15 +35,17 @@ class RenderingSystem(
     override fun onTickEntity(entity: Entity) {
         if (particleMap.contains(entity)) {
             particleMap[entity].apply {
-                renderMap[entity].sprite.also { sprite ->
-                    val radius = 24f
-                    val posX = radius * MathUtils.cosDeg(sprite.rotation)
-                    val posY = radius * MathUtils.sinDeg(sprite.rotation)
-                    particle.setPosition(
-                        sprite.originX + sprite.x - posX,
-                        sprite.originY + sprite.y - posY
-                    )
-                    rotateBy(sprite.rotation + 180)
+                if (renderMap.contains(entity)) {
+                    renderMap[entity].sprite.also { sprite ->
+                        val radius = 24f
+                        val posX = radius * MathUtils.cosDeg(sprite.rotation)
+                        val posY = radius * MathUtils.sinDeg(sprite.rotation)
+                        particle.setPosition(
+                            sprite.originX + sprite.x - posX,
+                            sprite.originY + sprite.y - posY
+                        )
+                        rotateBy(sprite.rotation + 180)
+                    }
                 }
                 particle.draw(batch)
             }
@@ -51,7 +53,6 @@ class RenderingSystem(
 
         if (renderMap.contains(entity)) {
             renderMap[entity].apply {
-                rendered = true
                 sprite.apply {
                     transformMap[entity].also {
                         rotation = it.rotation
