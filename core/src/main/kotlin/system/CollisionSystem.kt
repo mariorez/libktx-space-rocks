@@ -33,7 +33,7 @@ class CollisionSystem(
 
         players.forEach { playerEntity ->
             renderMapper[playerEntity].getPolygon(8).also { playerBox ->
-                if (renderMapper[playerEntity].rendered && overlaps(playerBox, rockBox)) {
+                if (overlaps(playerBox, rockBox)) {
                     score.rocks--
                     explode(
                         renderMapper[playerEntity].sprite.x + renderMapper[playerEntity].sprite.width / 2,
@@ -51,7 +51,7 @@ class CollisionSystem(
 
         shields.forEach { shieldEntity ->
             renderMapper[shieldEntity].getPolygon(8).also { shieldBox ->
-                if (renderMapper[shieldEntity].rendered && overlaps(shieldBox, rockBox)) {
+                if (overlaps(shieldBox, rockBox)) {
                     shieldMapper[shieldEntity].power -= 34f
                     score.rocks--
                     score.shieldPower = if (shieldMapper[shieldEntity].power <= 0) 0f else shieldMapper[shieldEntity].power
@@ -72,7 +72,7 @@ class CollisionSystem(
         shoots.forEach { shootEntity ->
             if (noLaseCollision) {
                 renderMapper[shootEntity].getPolygon().also { shootBox ->
-                    if (renderMapper[shootEntity].rendered && overlaps(shootBox, rockBox)) {
+                    if (overlaps(shootBox, rockBox)) {
                         noLaseCollision = false
                         score.rocks--
                         world.apply {

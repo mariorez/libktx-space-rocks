@@ -15,7 +15,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
-import component.*
+import component.FollowComponent
+import component.InputComponent
+import component.ParticleEffectComponent
+import component.PlayerComponent
+import component.PulseEffectComponent
+import component.RenderComponent
+import component.RockComponent
+import component.ShieldComponent
+import component.ShootComponent
+import component.TransformComponent
+import component.WrapAroundWorldComponent
 import generateButton
 import ktx.actors.alpha
 import ktx.actors.onTouchDown
@@ -24,7 +34,18 @@ import ktx.app.Platform
 import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
 import listener.ScoreListener
-import system.*
+import system.AnimationSystem
+import system.CollisionSystem
+import system.FadeEffectSystem
+import system.FollowSystem
+import system.InputSystem
+import system.MovementSystem
+import system.ParticleEffectSystem
+import system.PulseEffectSystem
+import system.RenderingSystem
+import system.ShootingSystem
+import system.WarpSystem
+import system.WrapAroundWorldSystem
 import kotlin.properties.Delegates
 import kotlin.random.Random.Default.nextInt
 
@@ -45,18 +66,18 @@ class GameScreen(
         inject(score)
         inject("laser", assets.get<Texture>("laser.png"))
         inject("warp", assets.get<Texture>("warp.png"))
+        system<InputSystem>()
         system<MovementSystem>()
         system<WarpSystem>()
         system<FollowSystem>()
         system<ShootingSystem>()
         system<WrapAroundWorldSystem>()
-        system<CollisionSystem>()
         system<AnimationSystem>()
         system<FadeEffectSystem>()
         system<PulseEffectSystem>()
         system<ParticleEffectSystem>()
         system<RenderingSystem>()
-        system<InputSystem>()
+        system<CollisionSystem>()
     }
 
     init {
