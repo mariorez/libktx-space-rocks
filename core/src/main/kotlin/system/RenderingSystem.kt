@@ -2,6 +2,7 @@ package system
 
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.MathUtils
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.AnyOf
 import com.github.quillraven.fleks.ComponentMapper
@@ -18,11 +19,11 @@ import ktx.graphics.use
 class RenderingSystem(
     private val batch: SpriteBatch,
     private val camera: OrthographicCamera,
-    private val transform: ComponentMapper<TransformComponent>,
-    private val render: ComponentMapper<RenderComponent>,
-    private val particle: ComponentMapper<ParticleEffectComponent>
+    private val transformMap: ComponentMapper<TransformComponent>,
+    private val renderMap: ComponentMapper<RenderComponent>,
+    private val particleMap: ComponentMapper<ParticleEffectComponent>
 ) : IteratingSystem(
-    compareEntity { entA, entB -> transform[entA].zIndex.compareTo(transform[entB].zIndex) }
+    compareEntity { entA, entB -> transformMap[entA].zIndex.compareTo(transformMap[entB].zIndex) }
 ) {
 
     override fun onTick() {
@@ -32,26 +33,27 @@ class RenderingSystem(
     }
 
     override fun onTickEntity(entity: Entity) {
-        if (particle.contains(entity)) {
-            particle[entity].apply {
-                if (render.contains(entity)) {
-                    render[entity].sprite.also { sprite ->
-                        particle.setPosition(
-                            sprite.x + sprite.width / 2f,
-                            sprite.y + sprite.height / 2f
-                        )
-                        rotateBy(sprite.rotation + 180)
-                    }
+        if (particleMap.contains(entity)) {
+            particleMap[entity].apply {
+                renderMap[entity].sprite.also { sprite ->
+                    val radius = 24f
+                    val posX = radius * MathUtils.cosDeg(sprite.rotation)
+                    val posY = radius * MathUtils.sinDeg(sprite.rotation)
+                    particle.setPosition(
+                        sprite.originX + sprite.x - posX,
+                        sprite.originY + sprite.y - posY
+                    )
+                    rotateBy(sprite.rotation + 180)
                 }
                 particle.draw(batch)
             }
         }
 
-        if (render.contains(entity)) {
-            render[entity].apply {
+        if (renderMap.contains(entity)) {
+            renderMap[entity].apply {
                 rendered = true
                 sprite.apply {
-                    transform[entity].also {
+                    transformMap[entity].also {
                         rotation = it.rotation
                         setBounds(it.position.x, it.position.y, width, height)
                     }

@@ -2,34 +2,46 @@ package system
 
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
-import com.github.quillraven.fleks.*
-import component.*
+import com.badlogic.gdx.math.MathUtils
+import com.github.quillraven.fleks.AllOf
+import com.github.quillraven.fleks.ComponentMapper
+import com.github.quillraven.fleks.Entity
+import com.github.quillraven.fleks.IteratingSystem
+import com.github.quillraven.fleks.Qualifier
+import component.FadeEffectComponent
+import component.InputComponent
+import component.PlayerComponent
+import component.RenderComponent
+import component.ShootComponent
+import component.TransformComponent
 import listener.ScoreListener
 
 @AllOf([PlayerComponent::class])
 class ShootingSystem(
     @Qualifier("laser") private val laser: Texture,
     private val score: ScoreListener,
-    private val input: ComponentMapper<InputComponent>,
-    private val playerMapper: ComponentMapper<PlayerComponent>,
-    private val transform: ComponentMapper<TransformComponent>,
-    private val render: ComponentMapper<RenderComponent>
+    private val inputMap: ComponentMapper<InputComponent>,
+    private val playerMap: ComponentMapper<PlayerComponent>,
+    private val transformMap: ComponentMapper<TransformComponent>,
 ) : IteratingSystem() {
-
-    private var playerXCenter: Float? = null
-    private var playerYCenter: Float? = null
-    private val laserXCenter = laser.width / 2
-    private val laserYCenter = laser.height / 2
 
     override fun onTickEntity(entity: Entity) {
 
-        if (!input[entity].shoot || playerMapper[entity].ammunition <= 0) return
-        input[entity].shoot = false
-        playerMapper[entity].ammunition--
-        score.ammunition = playerMapper[entity].ammunition
+        if (!inputMap[entity].shoot || playerMap[entity].ammunition <= 0) return
+        inputMap[entity].shoot = false
+        playerMap[entity].ammunition--
+        score.ammunition = playerMap[entity].ammunition
 
-        if (playerXCenter == null) playerXCenter = render[entity].sprite.width / 2
-        if (playerYCenter == null) playerYCenter = render[entity].sprite.height / 2
+        val radius = 35f
+        var shootX = 0f
+        var shootY = 0f
+        var shootRotation = 0f
+
+        transformMap[entity].apply {
+            shootX = position.x + (radius * MathUtils.cosDeg(rotation))
+            shootY = position.y + 28f + (radius * MathUtils.sinDeg(rotation))
+            shootRotation = rotation
+        }
 
         world.entity {
             add<ShootComponent>()
@@ -39,14 +51,14 @@ class ShootingSystem(
                 removeEntityOnEnd = true
             }
             add<TransformComponent> {
-                position.x = transform[entity].position.x + playerXCenter!! - laserXCenter
-                position.y = transform[entity].position.y + playerYCenter!! - laserYCenter
+                position.x = shootX
+                position.y = shootY
                 zIndex = 1f
                 setSpeed(400f)
                 maxSpeed = 400f
                 deceleration = 0f
-                rotation = transform[entity].rotation
-                setMotionAngle(transform[entity].rotation)
+                rotation = shootRotation
+                setMotionAngle(shootRotation)
             }
 
         }
