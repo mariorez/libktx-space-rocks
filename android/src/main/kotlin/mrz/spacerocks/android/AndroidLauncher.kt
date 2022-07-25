@@ -1,6 +1,6 @@
 package mrz.spacerocks.android
 
-import Main
+import GameBoot
 import android.os.Bundle
 import com.badlogic.gdx.backends.android.AndroidApplication
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
@@ -9,7 +9,7 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
 class AndroidLauncher : AndroidApplication() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initialize(Main(), AndroidApplicationConfiguration().apply {
+        initialize(GameBoot(), AndroidApplicationConfiguration().apply {
             useImmersiveMode = true
         })
     }

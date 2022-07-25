@@ -12,6 +12,8 @@ import com.github.quillraven.fleks.collection.compareEntity
 import component.ParticleEffectComponent
 import component.RenderComponent
 import component.TransformComponent
+import getCenterX
+import getCenterY
 import ktx.graphics.use
 
 @AllOf([TransformComponent::class])
@@ -41,8 +43,8 @@ class RenderingSystem(
                         val posX = radius * MathUtils.cosDeg(sprite.rotation)
                         val posY = radius * MathUtils.sinDeg(sprite.rotation)
                         particle.setPosition(
-                            sprite.originX + sprite.x - posX,
-                            sprite.originY + sprite.y - posY
+                            sprite.getCenterX() - posX,
+                            sprite.getCenterY() - posY
                         )
                         rotateBy(sprite.rotation + 180)
                     }

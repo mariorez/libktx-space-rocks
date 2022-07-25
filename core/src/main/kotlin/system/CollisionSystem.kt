@@ -13,14 +13,16 @@ import component.RenderComponent
 import component.RockComponent
 import component.ShieldComponent
 import component.TransformComponent
+import getCenterX
+import getCenterY
 import listener.ScoreListener
 import kotlin.properties.Delegates
 
 @AllOf([RockComponent::class])
 class CollisionSystem(
     private val score: ScoreListener,
-    private val renderMapper: ComponentMapper<RenderComponent>,
-    private val shieldMapper: ComponentMapper<ShieldComponent>
+    private val renderMap: ComponentMapper<RenderComponent>,
+    private val shieldMap: ComponentMapper<ShieldComponent>
 ) : IteratingSystem() {
 
     var players: Family by Delegates.notNull()
@@ -28,20 +30,20 @@ class CollisionSystem(
     var shoots: Family by Delegates.notNull()
 
     override fun onTickEntity(entity: Entity) {
-        val rockSprite = renderMapper[entity].sprite
-        val rockBox = renderMapper[entity].getPolygon()
+        val rockSprite = renderMap[entity].sprite
+        val rockBox = renderMap[entity].getPolygon()
 
-        players.forEach { playerEntity ->
-            renderMapper[playerEntity].getPolygon(8).also { playerBox ->
+        players.firstOrNull()?.let { playerEntity ->
+            renderMap[playerEntity].getPolygon(8).also { playerBox ->
                 if (overlaps(playerBox, rockBox)) {
                     score.rocks--
                     explode(
-                        renderMapper[playerEntity].sprite.x + renderMapper[playerEntity].sprite.width / 2,
-                        renderMapper[playerEntity].sprite.y + renderMapper[playerEntity].sprite.height / 2
+                        renderMap[playerEntity].sprite.getCenterX(),
+                        renderMap[playerEntity].sprite.getCenterY()
                     )
                     explode(
-                        rockSprite.x + rockSprite.width / 2,
-                        rockSprite.y + rockSprite.height / 2
+                        rockSprite.getCenterX(),
+                        rockSprite.getCenterY()
                     )
                     world.remove(playerEntity)
                     world.remove(entity)
@@ -50,18 +52,18 @@ class CollisionSystem(
         }
 
         shields.forEach { shieldEntity ->
-            renderMapper[shieldEntity].getPolygon(8).also { shieldBox ->
+            renderMap[shieldEntity].getPolygon(8).also { shieldBox ->
                 if (overlaps(shieldBox, rockBox)) {
-                    shieldMapper[shieldEntity].power -= 34f
+                    shieldMap[shieldEntity].power -= 34f
                     score.rocks--
-                    score.shieldPower = if (shieldMapper[shieldEntity].power <= 0) 0f else shieldMapper[shieldEntity].power
-                    renderMapper[shieldEntity].sprite.setAlpha(shieldMapper[shieldEntity].power / 100f)
-                    if (shieldMapper[shieldEntity].power <= 0f) {
+                    score.shieldPower = if (shieldMap[shieldEntity].power <= 0) 0f else shieldMap[shieldEntity].power
+                    renderMap[shieldEntity].sprite.setAlpha(shieldMap[shieldEntity].power / 100f)
+                    if (shieldMap[shieldEntity].power <= 0f) {
                         world.remove(shieldEntity)
                     }
                     explode(
-                        rockSprite.x + rockSprite.width / 2,
-                        rockSprite.y + rockSprite.height / 2
+                        rockSprite.getCenterX(),
+                        rockSprite.getCenterY()
                     )
                     world.remove(entity)
                 }
@@ -71,7 +73,7 @@ class CollisionSystem(
         var noLaseCollision = true
         shoots.forEach { shootEntity ->
             if (noLaseCollision) {
-                renderMapper[shootEntity].getPolygon().also { shootBox ->
+                renderMap[shootEntity].getPolygon().also { shootBox ->
                     if (overlaps(shootBox, rockBox)) {
                         noLaseCollision = false
                         score.rocks--
@@ -80,8 +82,8 @@ class CollisionSystem(
                             remove(entity)
                         }
                         explode(
-                            rockSprite.x + rockSprite.width / 2,
-                            rockSprite.y + rockSprite.height / 2
+                            rockSprite.getCenterX(),
+                            rockSprite.getCenterY()
                         )
                     }
                 }

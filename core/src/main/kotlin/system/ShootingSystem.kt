@@ -33,9 +33,9 @@ class ShootingSystem(
         score.ammunition = playerMap[entity].ammunition
 
         val radius = 35f
-        var shootX = 0f
-        var shootY = 0f
-        var shootRotation = 0f
+        var shootX: Float
+        var shootY: Float
+        var shootRotation: Float
 
         transformMap[entity].apply {
             shootX = position.x + (radius * MathUtils.cosDeg(rotation))
@@ -60,7 +60,6 @@ class ShootingSystem(
                 rotation = shootRotation
                 setMotionAngle(shootRotation)
             }
-
         }
     }
 }

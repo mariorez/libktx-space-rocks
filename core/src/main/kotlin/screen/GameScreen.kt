@@ -2,7 +2,8 @@ package screen
 
 import Action
 import BaseScreen
-import Main.Companion.gameSizes
+import GameBoot.Companion.assets
+import GameBoot.Companion.sizes
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -14,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.World
+import com.github.quillraven.fleks.world
 import component.FollowComponent
 import component.InputComponent
 import component.ParticleEffectComponent
@@ -31,7 +32,6 @@ import ktx.actors.alpha
 import ktx.actors.onTouchDown
 import ktx.actors.onTouchEvent
 import ktx.app.Platform
-import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
 import listener.ScoreListener
 import system.AnimationSystem
@@ -49,9 +49,7 @@ import system.WrapAroundWorldSystem
 import kotlin.properties.Delegates
 import kotlin.random.Random.Default.nextInt
 
-class GameScreen(
-    private val assets: AssetStorage
-) : BaseScreen() {
+class GameScreen : BaseScreen() {
     private var spaceship: Entity by Delegates.notNull()
     private val rocksQuantity = 10
     private val ammunition = 10
@@ -59,25 +57,28 @@ class GameScreen(
     private var score = ScoreListener(rocksQuantity, ammunition, shieldPower)
     private var scoreLabel = Label("", LabelStyle().apply { font = assets.get<BitmapFont>("open-sans.ttf") })
     private lateinit var touchpad: Touchpad
-    private val world = World {
-        inject(batch)
-        inject(camera)
-        inject(gameSizes)
-        inject(score)
-        inject("laser", assets.get<Texture>("laser.png"))
-        inject("warp", assets.get<Texture>("warp.png"))
-        system<InputSystem>()
-        system<MovementSystem>()
-        system<WarpSystem>()
-        system<FollowSystem>()
-        system<ShootingSystem>()
-        system<WrapAroundWorldSystem>()
-        system<AnimationSystem>()
-        system<FadeEffectSystem>()
-        system<PulseEffectSystem>()
-        system<ParticleEffectSystem>()
-        system<RenderingSystem>()
-        system<CollisionSystem>()
+    private val world = world {
+        injectables {
+            add(batch)
+            add(camera)
+            add(score)
+            add("laser", assets.get<Texture>("laser.png"))
+            add("warp", assets.get<Texture>("warp.png"))
+        }
+        systems {
+            add<InputSystem>()
+            add<MovementSystem>()
+            add<WarpSystem>()
+            add<FollowSystem>()
+            add<ShootingSystem>()
+            add<WrapAroundWorldSystem>()
+            add<AnimationSystem>()
+            add<FadeEffectSystem>()
+            add<PulseEffectSystem>()
+            add<ParticleEffectSystem>()
+            add<RenderingSystem>()
+            add<CollisionSystem>()
+        }
     }
 
     init {
@@ -98,8 +99,9 @@ class GameScreen(
                 it.shields = family(allOf = arrayOf(ShieldComponent::class))
                 it.shoots = family(allOf = arrayOf(ShootComponent::class))
             }
-            system<InputSystem>().also {
-                if (Platform.isMobile) it.touchpad = touchpad
+
+            if (Platform.isMobile) {
+                system<InputSystem>().also { it.touchpad = touchpad }
             }
         }
     }
@@ -122,7 +124,7 @@ class GameScreen(
             add<WrapAroundWorldComponent>()
             add<InputComponent>()
             add<TransformComponent> {
-                position.set(gameSizes.windowWidthF() / 2, gameSizes.windowHeightF() / 2)
+                position.set(sizes.windowWidthF() / 2, sizes.windowHeightF() / 2)
                 zIndex += rocksQuantity + 1
                 acceleration = 150f
                 deceleration = 10f
@@ -164,8 +166,8 @@ class GameScreen(
                 add<WrapAroundWorldComponent>()
                 add<RenderComponent> { sprite = Sprite(rockImage) }
                 add<TransformComponent> {
-                    position.x = nextInt(0, gameSizes.windowWidth - rockImage.width).toFloat()
-                    position.y = nextInt(0, gameSizes.worldHeight - rockImage.height).toFloat()
+                    position.x = nextInt(0, sizes.windowWidth - rockImage.width).toFloat()
+                    position.y = nextInt(0, sizes.worldHeight - rockImage.height).toFloat()
                     zIndex += index
                     acceleration = 50f
                     maxSpeed = 50f

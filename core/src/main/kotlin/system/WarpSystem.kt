@@ -1,6 +1,6 @@
 package system
 
-import Main.Companion.gameSizes
+import GameBoot.Companion.sizes
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -32,8 +32,8 @@ class WarpSystem(
         val currentX = transformMapper[entity].position.x
         val currentY = transformMapper[entity].position.y
 
-        val newX = random(gameSizes.worldWidth).toFloat()
-        val newY = random(gameSizes.worldHeight).toFloat()
+        val newX = random(sizes.worldWidth).toFloat()
+        val newY = random(sizes.worldHeight).toFloat()
 
         transformMapper[entity].position.set(newX, newY)
 

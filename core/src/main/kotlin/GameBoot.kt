@@ -17,9 +17,10 @@ import ktx.assets.async.AssetStorage
 import ktx.async.KtxAsync
 import screen.GameScreen
 
-class Main : KtxGame<KtxScreen>() {
+class GameBoot : KtxGame<KtxScreen>() {
     companion object {
-        var gameSizes = GameSizes(
+        val assets = AssetStorage()
+        val sizes = Sizes(
             windowWidth = 960,
             windowHeight = 540
         )
@@ -47,7 +48,7 @@ class Main : KtxGame<KtxScreen>() {
 
         KtxAsync.initiate()
 
-        val assets = AssetStorage().apply {
+        assets.apply {
             setLoader<FreeTypeFontGenerator> { FreeTypeFontGeneratorLoader(fileResolver) }
             setLoader<BitmapFont>(".ttf") { FreetypeFontLoader(fileResolver) }
 
@@ -79,7 +80,7 @@ class Main : KtxGame<KtxScreen>() {
             }
         }
 
-        addScreen(GameScreen(assets))
+        addScreen(GameScreen())
         setScreen<GameScreen>()
     }
 }
